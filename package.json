@@ -10,10 +10,35 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-navigation/native": "^7.1.14",
+    "@react-navigation/native-stack": "^7.3.21",
+    "@react-navigation/stack": "^7.4.2",
     "expo": "~53.0.17",
+    "expo-asset": "^11.1.7",
+    "expo-audio": "~0.4.8",
+    "expo-av": "^15.1.7",
+    "expo-device": "~7.1.4",
+    "expo-document-picker": "^13.1.6",
+    "expo-file-system": "^18.1.11",
+    "expo-keep-awake": "^14.1.4",
+    "expo-media-library": "^17.1.7",
+    "expo-speech": "^13.1.7",
     "expo-status-bar": "~2.2.3",
+    "promise-sequential": "^1.1.1",
     "react": "19.0.0",
-    "react-native": "0.79.5"
+    "react-native": "0.79.5",
+    "react-native-draggable-flatlist": "^4.0.3",
+    "react-native-elements": "^3.4.3",
+    "react-native-gesture-handler": "^2.27.1",
+    "react-native-reanimated": "^3.17.4",
+    "react-native-safe-area-context": "^5.5.1",
+    "react-native-screens": "^4.11.1",
+    "react-native-status-bar-height": "^2.6.0",
+    "react-native-swipeable-item": "^2.0.9",
+    "recyclerlistview": "^4.2.3",
+    "superagent": "^10.2.1",
+    "use-debounce": "^10.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
