@@ -240,7 +240,7 @@ export default function HomeScreen() {
             
                                 //    xPos.value = e.nativeEvent.contentOffset.x
             
-            
+             
                                 }}
                                 isHorizontal={true}
                                 //  renderContentContainer={function(){return <></>}}
