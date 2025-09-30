@@ -87,6 +87,23 @@ export default function App() {
   //   })
   const [audioSound] = useState(new Audio.Sound())
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingTop: StatusBar.currentHeight,
+
+
+    },
+    scrollView: {
+      backgroundColor: 'pink',
+    },
+    text: {
+      fontSize: 42,
+      padding: 12,
+    },
+  });
+
+
   function playword() {
 
     startPromiseSequential([
@@ -321,7 +338,24 @@ export default function App() {
 
 
 
-      <ContextProvider><AppStarter /></ContextProvider> 
+      {/* <View style={{ width: 200, height: 200 }}>
+        <ScrollView style={styles.scrollView}>
+          <Text style={styles.text}>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+            minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum.
+          </Text>
+        </ScrollView>
+      </View> */}
+
+
+
+
+      <ContextProvider><AppStarter /></ContextProvider>
 
     </>
   )
@@ -345,9 +379,9 @@ function AppStarter() {
 
 
   return (
-
-    <NavigationContainer><StackNavigator /></NavigationContainer>
-
+   
+      <NavigationContainer><StackNavigator /></NavigationContainer>
+    
 
   )
 }

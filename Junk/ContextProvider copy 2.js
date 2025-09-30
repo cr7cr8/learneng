@@ -13,7 +13,7 @@ const headHeight = getStatusBarHeight() > 24 ? 80 : 60
 import * as MediaLibrary from 'expo-media-library';
 import CryptoJS from 'crypto-js/sha256';
 import promiseSequential from 'promise-sequential';
-import Reanimated, { useSharedValue, useAnimatedRef, withTiming, useDerivedValue, runOnJS, useAnimatedStyle, runOnUI, } from 'react-native-reanimated';
+import Reanimated, { useSharedValue, useAnimatedRef, withTiming, useDerivedValue, runOnJS, useAnimatedStyle, } from 'react-native-reanimated';
 const { View, Text, ScrollView, FlatList } = Reanimated
 
 import startPromiseSequential from 'promise-sequential';
@@ -22,12 +22,41 @@ import { useDebounce, useDebouncedCallback, useThrottledCallback } from 'use-deb
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 
-import { defaultwordsArr } from "./defaultwords";
+import defaultwordsArr from "./defaultwords";
 
 import * as Speech from 'expo-speech';
 import { useAudioPlayer } from 'expo-audio';
 
+//console.log(defaultWords)
 
+
+// MediaLibrary.requestPermissionsAsync()
+//     .then(info => {
+//         if (info.granted) {
+//             FileSystem.readAsStringAsync(FileSystem.documentDirectory + "defaultWords.txt").then(content => {
+
+//               //  const asset = await MediaLibrary.createAssetAsync(FileSystem.documentDirectory + "defaultWords.txt")
+//                 (async function () {
+//                     // let album = await MediaLibrary.getAlbumAsync('wordsmemo')
+
+//                     // console.log("----",album)
+//                     // if (album == null) { await MediaLibrary.createAlbumAsync('wordsmemo', asset, false);   console.log(">>>>",asset) }
+//                     const asset = await MediaLibrary.createAssetAsync(FileSystem.documentDirectory + "defaultWords.txt")
+//                     let album = await MediaLibrary.getAlbumAsync('wordsmemo').catch(e => { console.log(e) });
+
+//                     if (album == null) { await MediaLibrary.createAlbumAsync('wordsmemo', asset, false).catch(e => { console.log(e) }); }
+//                     else {
+//                         await MediaLibrary.addAssetsToAlbumAsync([asset], album, false).catch(e => { console.log(e) });
+//                     }
+
+//                 })()
+
+//             })
+//         }
+
+//         console.log("====================================================", info)
+//     })
+//     .catch(e => { console.log(e) })
 
 
 import superagent from "superagent";
@@ -35,47 +64,6 @@ import superagent from "superagent";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { reject, resolve } from 'superagent/lib/request-base';
 
-
-import {
-    configureReanimatedLogger,
-    ReanimatedLogLevel,
-} from 'react-native-reanimated';
-configureReanimatedLogger({
-    level: ReanimatedLogLevel.warn,
-    strict: false//true, // Reanimated runs in strict mode by default
-});
-
-
-
-// import * as BackgroundTask from 'expo-background-task';
-// import * as TaskManager from 'expo-task-manager';
-
-// const BACKGROUND_TASK_NAME = 'MY_BACKGROUND_TASK';
-
-// TaskManager.defineTask(BACKGROUND_TASK_NAME, async () => {
-//     try {
-//         console.log('Background task executed!');
-//         // Add your background logic here (e.g., API calls, data sync)
-//     } catch (error) {
-//         console.error('Background task failed:', error);
-//         return BackgroundTask.BackgroundTaskResult.Failed;
-//     }
-//     return BackgroundTask.BackgroundTaskResult.Success;
-// });
-
-
-
-
-// async function registerBackgroundTask() {
-//     await BackgroundTask.registerTaskAsync(BACKGROUND_TASK_NAME, {
-//         minimumInterval: 1, // Minimum interval in minutes (Android only)
-//     });
-// }
-
-// registerBackgroundTask();
-
-
-// BackgroundTask.triggerTaskWorkerForTestingAsync();
 
 export default function ContextProvider(props) {
 
@@ -149,20 +137,16 @@ export default function ContextProvider(props) {
 
 
     useEffect(() => {
-        //setSortingObj()
+        setSortingObj()
         //fetchTransParam().then(data => console.log(data))
-        //refreshWordToFile()
+        refreshWordToFile()
 
         // FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
 
         //     data.forEach(item => {
         //         if (String(item).endsWith(".mp3")) {
         //             console.log("-----------", item)
-        //             FileSystem.deleteAsync(FileSystem.documentDirectory + item, { idempotent: true })
-        //         }
-        //         else if (String(item).endsWith(".txt")) {
-        //             console.log("-----------", item)
-        //             FileSystem.deleteAsync(FileSystem.documentDirectory + item, { idempotent: true })
+        //             FileSystem.deleteAsync(FileSystem.documentDirectory + item,{idempotent:true})
         //         }
         //     })
 
@@ -174,43 +158,34 @@ export default function ContextProvider(props) {
     }, [])
 
 
-
-
-
-
     useEffect(() => {
         //    console.log(appState.current)
         const unsubscribe = AppState.addEventListener("change", (nextAppState) => {
-            console.log("----------", nextAppState)
+            console.log(nextAppState)
 
 
-            // BackgroundTask.triggerTaskWorkerForTestingAsync().then(a => {
-            //     console.log(a)
-            // });
+            if (nextAppState !== "active") {
+                if (isListPlaying.value) {
+                    wasItOn.current = true
+                    stopPlay()
+                    console.log("playing turned off")
+                }
+                else {
+                    wasItOn.current = false
+                }
+            }
+            else {
 
+                if (wasItOn.current) {
 
-            // if (nextAppState !== "active") {
-            //     if (isListPlaying.value) {
-            //         wasItOn.current = true
-            //         stopPlay()
-            //         console.log("playing turned off")
-            //     }
-            //     else {
-            //         wasItOn.current = false
-            //     }
-            // }
-            // else {
+                    setTimeout(() => {
+                        startPlay()
+                    }, 300);
 
-            //     if (wasItOn.current) {
-
-            //         setTimeout(() => {
-            //             startPlay()
-            //         }, 300);
-
-            //         wasItOn.current = false
-            //         console.log("resume playing")
-            //     }
-            // }
+                    wasItOn.current = false
+                    console.log("resume playing")
+                }
+            }
         })
 
 
@@ -246,7 +221,7 @@ export default function ContextProvider(props) {
                             FileSystem.writeAsStringAsync(FileSystem.documentDirectory + "allwords.txt", JSON.stringify(
                                 [...arr, ...arr2]
                             )).then(info => {
-                                console.log("saving done,allwords.txt has been rewritten")
+                                console.log("allwords.txt has been rewritten")
                                 isSaving.value = false
 
                             })
@@ -265,7 +240,7 @@ export default function ContextProvider(props) {
                         return sourceWordArr.find(word => { return word.wordName === oriWord.wordName }) || oriWord
                     })
                     FileSystem.writeAsStringAsync(FileSystem.documentDirectory + "allwords.txt", JSON.stringify(arr)).then(info => {
-                        console.log("saving done,allwords.txt has been rewritten")
+                        console.log("allwords.txt has been rewritten")
                         isSaving.value = false
 
                     })
@@ -282,10 +257,9 @@ export default function ContextProvider(props) {
 
     const refreshWordToFile = useDebouncedCallback(
         () => {
-            isSaving.value = true
             return new Promise((resolve, reject) => {
-                console.log("refreshWordToFile")
-                //  isSaving.value = true
+                console.log("writing allowrds.txt")
+                isSaving.value = true
                 FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
                     if (data.includes("allwords.txt")) {
 
@@ -303,14 +277,14 @@ export default function ContextProvider(props) {
                                 FileSystem.writeAsStringAsync(FileSystem.documentDirectory + "allwords.txt", JSON.stringify(
                                     [...arr, ...arr2]
                                 )).then(info => {
-                                    console.log("allwords.txt has been rewritten ======")
-                                    isSaving.value = false
+                                    console.log("allwords.txt has been rewritten")
+
                                     resolve()
                                 })
                             })
                             .catch(err => {
                                 console.log(err)
-                                isSaving.value = false
+
                                 reject()
                             })
 
@@ -415,21 +389,22 @@ export default function ContextProvider(props) {
     useEffect(() => {
 
 
-        console.log("checking existence of allwords.txt")
+
 
         FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
             if (data.includes("allwords.txt")) {
-                console.log("found allword.txt")
+                console.log("has allword.txt")
                 FileSystem.readAsStringAsync(FileSystem.documentDirectory + "allwords.txt").then(content => {
                     // setSouceWordArr(JSON.parse(content).slice(0,1))
+                    const arr = JSON.parse(content)
 
-                    let arr = JSON.parse(content)
-
-                    //arr.sort((word1, word2) => (word1.wordName < word2.wordName ? -1 : 1))//.reverse()
                     arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+                    // setSouceWordArr(arr.map(item => {
 
+                    //     item.level = Math.floor(Math.random() * 6)
+                    //     return item
 
-
+                    // }))
                     setSouceWordArr(arr)
                 })
 
@@ -452,12 +427,12 @@ export default function ContextProvider(props) {
                 })
 
 
-                // arr.sort((word1, word2) => {
+                arr.sort((word1, word2) => {
 
-                //    // return Number(word2.toppingTime) - Number(word1.toppingTime)
+                    return Number(word2.toppingTime) - Number(word1.toppingTime)
 
-                //       return Number(word2) - Number(word1)
-                // })
+
+                })
 
 
                 setSouceWordArr(arr)
@@ -791,13 +766,487 @@ export default function ContextProvider(props) {
 
     }
 
+
+
+
+
     const speakingPos = useSharedValue(-1)
 
+    function makePlayList_(wordPos) {
+        const startPos = wordPos.value
+        const playArr = [
 
+            function () {
+                return new Promise(resolve => {
+                    isListPlaying.value = true
+
+                    setTimeout(() => {
+                        console.log("playList start >>>>>>>", wordPos.value, isListPlaying.value)
+                        resolve()
+                    }, 0)
+                })
+            }
+        ]
+
+        //  const arr = [...sourceWordArr.slice(wordPos.value), ...sourceWordArr.slice(0, wordPos.value)]
+        const arr = [...sourceWordArr.slice(wordPos.value, wordPos.value + 1)]
+        arr.forEach((word, index) => {
+            playArr.push(
+                function (shouldTerminate) {
+
+                    speakingPos.value = -1;
+                    if (!isListPlaying.value) { return }
+                    else if (shouldTerminate) { return Promise.resolve(true) }
+                    else { return playSound0(word.wordName) }
+                }
+            )
+
+            word.showChinese && playArr.push(
+                function (shouldTerminate) {
+                    if (!isListPlaying.value) { return }
+                    else if (shouldTerminate) { return Promise.resolve(shouldTerminate) }
+                    else { return playSound0(word.meaningSound) }
+
+                }
+            )
+
+
+
+            const sourceWord = sourceWordArr[wordPos.value]
+            sourceWord.exampleEnglishArr.forEach((example, exampleIndex) => {
+                playArr.push(
+                    function (shouldTerminate) {
+                        speakingPos.value = exampleIndex;
+
+                        if (!isListPlaying.value) { return }
+                        else if (shouldTerminate) { return Promise.resolve(true) }
+                        return new Promise((resolve, reject) => {
+
+                            setTimeout(() => {
+                                if (isListPlaying.value) {
+                                    resolve(playSound0(example.sentence))
+                                }
+                                else {
+                                    resolve()
+                                }
+                            }, 0);
+                        })
+
+                    }
+
+                )
+
+                playArr.push(
+                    function (shouldTerminate) {
+                        speakingPos.value = exampleIndex;
+
+                        if (!isListPlaying.value) { return }
+                        else if (shouldTerminate) { return Promise.resolve(true) }
+                        return new Promise((resolve, reject) => {
+
+                            setTimeout(() => {
+                                if (isListPlaying.value) {
+                                    resolve(playSound0(sourceWord.exampleChineseArr[exampleIndex].sentence))
+                                }
+                                else {
+                                    resolve()
+                                }
+                            }, 0);
+                        })
+
+                    }
+
+                )
+
+
+            })
+
+
+
+
+
+            playArr.push(function (shouldTerminate) {
+                if (!isListPlaying.value) { return }
+
+                return new Promise((resolve, reject) => {
+
+                    //  setTimeout(() => {
+                    if (isListPlaying.value) {
+
+
+                        function addPos() {
+                            wordPos.value = (wordPos.value + 1) % sourceWordArr.length
+                            setTimeout(() => {
+                                if ((startPos === wordPos.value) && (sourceWordArr.length !== 1)) {
+                                    addPos()
+                                }
+                                else {
+                                    scrollRef.current._scrollViewRef.scrollTo({ y: wordPos.value * 80, animated: true })
+                                    resolve(shouldTerminate)
+                                }
+                            }, 0);
+
+
+                        }
+
+                        addPos()
+
+                    }
+                    else {
+                        resolve(shouldTerminate)
+                    }
+                    //    }, 0);
+                })
+            })
+
+
+
+
+
+        })
+
+
+
+
+
+
+
+        playArr.push(function (shouldTerminate) {
+
+            speakingPos.value = -1;
+            if (shouldTerminate) {
+                //  isListPlaying.value = false
+
+                console.log("playList end due to interupte, but carry on playing >>>>>>>>>", sourceWordArr[wordPos].wordName)
+            }
+            else if (startPos === wordPos.value) {
+
+                //increasePos()
+            }
+            console.log("playList end >>>>>>>>>", wordPos.value, isListPlaying.value)
+
+        })
+
+        return playArr
+
+    }
 
     const yPos = useSharedValue(0)
 
 
+    function makePlayList(wordPos) {
+        const startPos = wordPos.value
+        const playArr = [
+
+            function () {
+                return new Promise(resolve => {
+                    isListPlaying.value = true
+
+
+                    setTimeout(() => {
+                        resolve()
+                    }, (Math.abs(yPos.value - wordPos.value * 80) <= 400) ? 0 : 1000)
+
+                    scrollRef.current._scrollViewRef.scrollTo({ y: wordPos.value * 80, animated: true })
+                })
+            },
+
+
+            function () {
+                return new Promise(resolve => {
+                    isListPlaying.value = true
+                    //    scrollRef.current._scrollViewRef.scrollTo({ y: wordPos.value * 80, animated: true })
+
+                    setTimeout(() => {
+                        console.log("playList start >>>>>>>", wordPos.value, isListPlaying.value)
+                        speakingPos.value = -1
+                        resolve()
+                    }, 0)
+                })
+            }
+        ]
+
+
+        const word = sourceWordArr[wordPos.value]
+
+        for (let i = 0; i < word.firstTimeAmount; i++) {
+
+
+
+            playArr.push(
+                function (shouldTerminate) {
+
+
+                    if (!isListPlaying.value) { return }
+                    else if (shouldTerminate) { return Promise.resolve(true) }
+
+                    else { return playSound0(word.wordName) }
+                }
+            )
+        }
+
+        for (let i = 0; i < word.firstTimeMeaningAmount; i++) {
+
+            playArr.push(
+                function (shouldTerminate) {
+                    if (!isListPlaying.value) { return }
+                    else if (shouldTerminate) { return Promise.resolve(shouldTerminate) }
+                    else { return playSound0(word.meaningSound, false) }
+                }
+            )
+
+        }
+
+
+        for (let i = 0; i < word.secondTimeAmount; i++) {
+            playArr.push(
+                function (shouldTerminate) {
+
+
+                    if (!isListPlaying.value) { return }
+                    else if (shouldTerminate) { return Promise.resolve(true) }
+                    else { return playSound0(word.wordName) }
+                }
+            )
+        }
+
+
+        for (let i = 0; i < word.secondTimeMeaningAmount; i++) {
+
+            playArr.push(
+                function (shouldTerminate) {
+                    if (!isListPlaying.value) { return }
+                    else if (shouldTerminate) { return Promise.resolve(shouldTerminate) }
+                    else { return playSound0(word.meaningSound, false) }
+                }
+            )
+
+        }
+
+
+
+        word.exampleEnglishArr.forEach((example, exampleIndex) => {
+            //  console.log("----------------------", example)
+
+            const chineseExample = word.exampleChineseArr[exampleIndex]
+
+            for (let i = 0; i < example.firstTimeAmount; i++) {
+                playArr.push(
+                    function (shouldTerminate) {
+                        speakingPos.value = exampleIndex;
+
+                        if (!isListPlaying.value) { return }
+                        else if (shouldTerminate) { return Promise.resolve(true) }
+                        return new Promise((resolve, reject) => {
+
+                            setTimeout(() => {
+                                if (isListPlaying.value) {
+                                    resolve(playSound0(example.sentence))
+                                }
+                                else {
+                                    resolve()
+                                }
+                            }, 0);
+                        })
+
+                    }
+                )
+            }
+            for (let i = 0; i < chineseExample.firstTimeAmount; i++) {
+                playArr.push(
+                    function (shouldTerminate) {
+
+
+                        if (!isListPlaying.value) { return }
+                        else if (shouldTerminate) { return Promise.resolve(true) }
+                        return new Promise((resolve, reject) => {
+
+                            setTimeout(() => {
+                                if (isListPlaying.value) {
+                                    resolve(playSound0(chineseExample.sentence, false))
+                                }
+                                else {
+                                    resolve()
+                                }
+                            }, 0);
+                        })
+
+                    }
+
+                )
+            }
+
+            for (let i = 0; i < example.secondTimeAmount; i++) {
+                playArr.push(
+                    function (shouldTerminate) {
+
+
+                        if (!isListPlaying.value) { return }
+                        else if (shouldTerminate) { return Promise.resolve(true) }
+                        return new Promise((resolve, reject) => {
+
+                            setTimeout(() => {
+                                if (isListPlaying.value) {
+                                    resolve(playSound0(example.sentence))
+                                }
+                                else {
+                                    resolve()
+                                }
+                            }, 0);
+                        })
+
+                    }
+                )
+
+            }
+            for (let i = 0; i < chineseExample.secondTimeAmount; i++) {
+                playArr.push(
+                    function (shouldTerminate) {
+
+
+                        if (!isListPlaying.value) { return }
+                        else if (shouldTerminate) { return Promise.resolve(true) }
+                        return new Promise((resolve, reject) => {
+
+                            setTimeout(() => {
+                                if (isListPlaying.value) {
+                                    resolve(playSound0(chineseExample.sentence, false))
+                                }
+                                else {
+                                    resolve()
+                                }
+                            }, 0);
+                        })
+
+                    }
+
+                )
+            }
+        })
+
+
+
+
+
+        playArr.push(function (shouldTerminate) {
+            if (!isListPlaying.value) { return }
+
+            return new Promise((resolve, reject) => {
+
+                //  setTimeout(() => {
+                if (isListPlaying.value) {
+
+
+                    function addPos() {
+                        wordPos.value = (wordPos.value + 1) % sourceWordArr.length
+                        setTimeout(() => {
+                            //incase previouse increase fail,increase wordPos by one in settimeout if sourcewordarr length is more than one
+                            if ((startPos === wordPos.value) && (sourceWordArr.length !== 1)) {
+                                addPos()
+                            }
+                            else {
+
+                                resolve(shouldTerminate)
+                                // if (wordPos.value !== 0) {
+                                //     console.log(yPos.value, wordPos.value * 80)
+                                //     //  scrollRef.current._scrollViewRef.scrollTo({ y: wordPos.value * 80, animated: true })    
+                                //     resolve(shouldTerminate)
+
+
+
+
+
+                                // }
+                                // else {
+                                //     //      scrollRef.current._scrollViewRef.scrollTo({ y: wordPos.value * 80, animated: false })
+                                //     setTimeout(() => {
+                                //         resolve(shouldTerminate)
+                                //     }, 1000);
+                                // }
+
+
+
+
+                            }
+                        }, 0);
+
+
+                    }
+
+                    addPos()
+
+                }
+                else {
+                    resolve(shouldTerminate)
+                }
+                //    }, 0);
+            })
+        })
+
+
+        playArr.push(
+            function (shouldTerminate) {
+                speakingPos.value = -1;
+                if (!isListPlaying.value) { return }
+                else if (shouldTerminate) { return Promise.resolve(true) }
+
+                return new Promise(function (resolve, reject) {
+
+
+                    console.log("playlist end ----- >>>>>>>>>", wordPos.value - 1, isListPlaying.value)
+                    resolve()
+                })
+
+
+
+            }
+        )
+
+        return playArr
+
+    }
+
+    // const startPlay = useDebouncedCallback(
+    //     () => {
+    //         console.log("startplay")
+    //         isListPlaying.value = true
+    //         setTimeout(() => {
+    //             const list = makePlayList(wordPos)
+    //             setTimeout(() => {
+    //                 startPromiseSequential(list).then(() => {
+    //                     if (isListPlaying.value) {
+    //                         startPlay()
+    //                     }
+    //                 })
+    //             }, 0);
+    //         }, 0);
+
+
+    //     },
+    //     500,
+    //     { leading: true, trailing: false }
+
+    // )
+
+
+    const startPlay = () => {
+        console.log("startplay")
+        isListPlaying.value = true
+
+
+        setTimeout(() => {
+            const list = makePlayList(wordPos)
+            startPromiseSequential(list).then(() => {
+                if (isListPlaying.value) {
+                    //isListPlaying.value = false
+
+                    startPlay()
+
+                }
+            })
+        }, 0);
+
+    }
 
 
     const stopPlay = useDebouncedCallback(
@@ -812,8 +1261,8 @@ export default function ContextProvider(props) {
         { leading: true, trailing: false }
     )
 
-    const frameTransY = useSharedValue(0)
-
+    const frameTransY = useSharedValue(160)
+    const shouldFrameDisplay = useSharedValue(true)
 
 
     const processingCoverStyle = useAnimatedStyle(() => {
@@ -846,347 +1295,186 @@ export default function ContextProvider(props) {
 
 
     const audioPlayer = useAudioPlayer(``)
-
     // const audioPlayer = useAudioPlayer(`https://audio.wordhippo.com/mp3/translate_tts?ie=UTF-8&tl=en-US&tk=590080.996406&client=t&q=this is a hippo`)
 
-    let [outerResolve] = useState()
-    const stopSpeak = () => {
 
-        audioPlayer.pause()
-        Speech.stop()
 
-        outerResolve && outerResolve("audio is paused")
-
-    }
-
-    function checkPlaying() {
-
-        return promiseSequential([
-
-            isSpeakPlayingAsync,
-
-            isAudioPlayingAsync,
+    const speak = useDebouncedCallback((word) => {
 
 
 
-        ])
 
-    }
 
-    function isSpeakPlayingAsync() {
-        return Speech.isSpeakingAsync().then(res => {
-            return Promise.resolve(res)
+        const hashName = CryptoJS(word).toString();
+
+
+        // console.log("---->", word + " " + hashName.substring(0, 16))
+
+
+        // FileSystem.getInfoAsync(FileSystem.documentDirectory).then(item => {
+        //     console.log(item)
+        // })
+
+        return FileSystem.getInfoAsync(FileSystem.documentDirectory + `/${word}.mp3`).then(item => {
+            const { exists, isDirectory, size, uri } = item
+            // console.log(word + ".mp3", exists ? "is downloaded" : "does not exist")
+
+
+
+
+            let resolveMethod;
+            let rejectMethod;
+            const p = new Promise((resolve, reject) => { resolveMethod = resolve; rejectMethod = reject })
+
+            if (exists) {
+
+                const listener = audioPlayer.addListener("playbackStatusUpdate", (status) => {
+                    //console.log(status)
+                    if (status.didJustFinish) {
+                        listener.remove()
+
+                        resolveMethod(word + " Audio reading done")
+                    }
+                    
+
+                })
+                setTimeout(function () {
+                    listener.remove();
+                    resolveMethod(word + " audio reading ERROR")
+                   // rejectMethod(word + " audio reading ERROR")
+                }, 10000 * 10)
+
+                Speech.stop()
+                audioPlayer.pause()
+                audioPlayer.replace(FileSystem.documentDirectory + `/${word}.mp3`)
+                audioPlayer.play()
+            }
+            else {
+                audioPlayer.pause()
+                Speech.stop()
+                Speech.speak(word, {
+                    onDone: () => {
+                        resolveMethod(word + " Speech reading done")
+                        //Speech.speak(sourceWord.meaningSound)
+                    },
+                    onError: () => {
+                        rejectMethod(word + "speech reading ERROR")
+                    }
+                });
+            }
+
+            return Promise.resolve(p)
         })
-
-    }
-
-    function isAudioPlayingAsync() {
-
-        return new Promise((resolve, reject) => {
-            resolve(audioPlayer.currentStatus.playing)
-        })
-
-
-
-    }
-
-
-    const speak = useDebouncedCallback((word1, word2) => {
-
-        const hashName1 = CryptoJS(word1).toString();
-        const hashName2 = CryptoJS(word2).toString();
-        const hashName = hashName1 + hashName2
-
-        return FileSystem.getInfoAsync(FileSystem.documentDirectory + `${hashName}.mp3`)
-            .then(item => {
-
-                const { exists, isDirectory, size, uri } = item
-                let resolveMethod;
-                let rejectMethod;
-                const p = new Promise((resolve, reject) => { resolveMethod = resolve; rejectMethod = reject, outerResolve = resolve })
-
-                if (exists) {
-
-
-                    const reading = setTimeout(() => {
-                        // listener1.remove()
-                        listener2.remove()
-                        console.log(word2 + " audio reading ERROR ================")
-                        resolveMethod(word2 + " audio reading ERROR")
-
-                    }, 3000);
-
-
-
-                    const listener2 = audioPlayer.addListener("playbackStatusUpdate", (status) => {
-                        //  console.log(Object.keys(status),status.)
-
-
-
-                        if (status.playing) {
-                            reading && clearTimeout(reading)
-                        }
-                        else if (status.didJustFinish) {
-                            //   listener1.remove()
-                            listener2.remove()
-                            reading && clearTimeout(reading)
-                            // console.log("playing " + word2 + " done")
-                            resolveMethod("playing " + word2 + " done")
-                        }
-                        // else if (status.isBuffering) {
-                        //     console.log(word2, " isBuffering")
-                        // }
-                    })
-
-
-
-                    Speech.stop()
-                    audioPlayer.pause()
-                    audioPlayer.replace(FileSystem.documentDirectory + `/${hashName}.mp3`)
-                    audioPlayer.play()
-                }
-                else {
-
-                    Speech.stop()
-                    audioPlayer.pause()
-                    Speech.speak(word2, {
-                        onDone: () => {
-                            resolveMethod(word2 + " Speech reading done")
-                            //Speech.speak(sourceWord.meaningSound)
-                        },
-                        onError: () => {
-                            rejectMethod(word2 + "speech reading ERROR")
-                        },
-                        onStopped: () => {
-                            resolveMethod(word2 + " Speech reading stopped")
-                        }
-                    });
-                }
-
-                return Promise.resolve(p)
-            })
-            .catch((error) => {
-                return Promise.resolve("getFile " + word2 + ".mp3 error")
-            })
-
-
-
 
         //file:///data/user/0/host.exp.exponent/files/vilify.mp3
 
+        // FileSystem.downloadAsync(
+        //     `https://audio.wordhippo.com/mp3/translate_tts?ie=UTF-8&tl=en-US&tk=590080.996406&client=t&q=${word}`,
+        //	https://fanyi.baidu.com/gettts?lan=uk&text=go as fast as you can&spd=3
+
+        //     FileSystem.documentDirectory + word + '.mp3'
+        // )
+        //     .then(({ uri }) => {
+        //         console.log('Finished downloading to ', uri);
+        //     })
+        //     .catch(error => {
+        //         console.error(error);
+        //     });
+
+
+        // Speech.stop()
+        // Speech.speak(word, {
+        //     onDone: () => {
+
+        //         //Speech.speak(sourceWord.meaningSound)
+        //     }
+        // });
+
+
+        //  audioPlayer.replace(`https://audio.wordhippo.com/mp3/translate_tts?ie=UTF-8&tl=en-US&tk=590080.996406&client=t&q=${word}`)
+        //      audioPlayer.replace(`https://audio.wordhippo.com/mp3/translate_tts?ie=UTF-8&tl=en-UK&tk=590080.996406&client=t&q=${word}`)
+        //  audioPlayer.pause()
+        //      audioPlayer.play()
 
     }, 200, { leading: true, trailing: false })
 
-
+    const isAutoScrollEnd = useRef(true)
     const isScrollingY = useSharedValue(false)
     const isScrollingX = useSharedValue(false)
-    const isCardMoving = useSharedValue(false)
+  
+    useDerivedValue(() => {
+        //  console.log("is scrolling ? ", isScrollingY.value)
+            
+               
+    }, [isScrollingY])
 
-
-
-
-    function isAllScrollingStop() {
-        "worklet"
-        return (!isScrollingY.value) && (!isCardMoving.value) && (!isScrollingX.value)
-    }
-
-
-
-
-    const sentencePlaingIndex = useSharedValue(0)
     const autoPlay = useDebouncedCallback(function () {
-
-        const arr = []
-        ///////////////////////////////
-        // arr.push(function () {
-        //     sentencePlaingIndex.value = 0
-        //     if (!isListPlaying.value) { return Promise.resolve() }
-
-        //     return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
-        // })
-        //////////////////////////////
-
-        for (let i = 0; i < sourceWordArr[wordPos.value].firstTimeAmount; i++) {
-            arr.push(function () {
-                if (!isListPlaying.value) { return Promise.resolve() }
-                return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
-            })
-        }
-
-        // for (let i = 0; i < sourceWordArr[wordPos.value].firstTimeMeaningAmount; i++) {
-        //     arr.push(function () {
-        //         if (!isListPlaying.value) { return Promise.resolve() }
-        //         return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
-        //     })
-        // }
-        // for (let i = 0; i < sourceWordArr[wordPos.value].secondTimeAmount; i++) {
-        //     arr.push(function () {
-        //         if (!isListPlaying.value) { return Promise.resolve() }
-        //         return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
-        //     })
-        // }
-        // for (let i = 0; i < sourceWordArr[wordPos.value].secondTimeMeaningAmount; i++) {
-        //     arr.push(function () {
-        //         if (!isListPlaying.value) { return Promise.resolve() }
-        //         return speak(sourceWordArr[wordPos.value].meaningSound, sourceWordArr[wordPos.value].meaningSound)
-        //     })
-        // }
-
-        for (let i = 0; i < sourceWordArr[wordPos.value].exampleEnglishArr.length; i++) {
-
-            // for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].firstTimeAmount; j++) {
-            arr.push(function () {
-                sentencePlaingIndex.value = i
-                if (!isListPlaying.value) { return Promise.resolve() }
-                return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
-            })
-            // }
-
-            // for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].firstTimeAmount; j++) {
-            //     arr.push(function () {
-            //         if (!isListPlaying.value) { return Promise.resolve() }
-            //         return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
-            //     })
-            // }
-
-            // for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].secondTimeAmount; j++) {
-            //     arr.push(function () {
-            //         if (!isListPlaying.value) { return Promise.resolve() }
-            //         return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
-            //     })
-            // }
-
-            // for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].secondTimeAmount; j++) {
-            //     arr.push(function () {
-            //         if (!isListPlaying.value) { return Promise.resolve() }
-            //         return speak(sourceWordArr[wordPos.value].exampleChineseArr[i].sentence, sourceWordArr[wordPos.value].exampleChineseArr[i].sentence)
-            //     })
-            // }
-        }
+        //   console.log(wordPos.value, sourceWordArr[wordPos.value].wordName)
+        // isAutoScrollEnd.current = false
 
 
-
-
-
-
-
+        let resolve;
+        let reject;
+        const p = new Promise((resolve_, reject_) => {
+            resolve = resolve_; reject = reject_
+        })
 
 
         return promiseSequential([
-
-            ...arr,
-
             function () {
+                if (!isListPlaying.value) { resolve(); return p }
 
-                if (!isListPlaying.value) { return Promise.resolve() }
+                return speak(sourceWordArr[wordPos.value].wordName)
+            },
+            function () {
+                if (!isListPlaying.value) { resolve(); return p }
+
                 return new Promise((resolve, reject) => {
+                    //   wordPos.value = (wordPos.value + 1) % sourceWordArr.length
                     wordPos.value = withTiming((wordPos.value + 1) % sourceWordArr.length, { duration: 0 }, () => {
                         runOnJS(resolve)()
                     });
                 })
-
-            },
-
+    
+            }, 
             function () {
+                if (!isListPlaying.value) { resolve(); return p }
 
-                if (!isListPlaying.value) { return Promise.resolve() }
-
-                let resolve;
-                let reject;
-                const p = new Promise((resolve_, reject_) => {
-                    resolve = resolve_; reject = reject_
-                })
-
-
-                setTimeout(check); return p
+                check()
 
 
                 function check() {
-                    //console.log("in checking", isAllStop())
-                    if (!isListPlaying.value) { resolve() }
-                    else if (isAllScrollingStop()) {
-
-
-                        const newY = Math.max(Math.min(scrollY.value + 80, wordPos.value * 80), wordPos.value * 80 - (screenHeight - headHeight) + 80)
-
-
-                        scrollRef.current._scrollViewRef.scrollTo({ y: newY, animated: true })
-                        //scrollRef.current._scrollViewRef.scrollTo({ y: wordPos.value * 80, animated: true })
-                        //scrollRef2.current._scrollViewRef.scrollTo({ x: wordPos.value * screenWidth, animated: true })
-
-                        checkAgain()
-                        // setTimeout(() => { checkAgain() }, 10);
+                    if (!isListPlaying.value) { resolve(); return p }
+                    if (isScrollingY.value) {
+                        setTimeout(() => {
+                            check()
+                        }, 0);
                     }
                     else {
-
-                        setTimeout(() => { check() }, 10);
+                        scrollRef.current._scrollViewRef.scrollTo({ y: wordPos.value * 80, animated: true })
+                        scrollRef2.current._scrollViewRef.scrollTo({ x: wordPos.value * screenWidth, animated: true })
+                        checkAgain()
                     }
                 }
-
-
-
-
 
                 function checkAgain() {
-
-                    if (!isListPlaying.value) { return resolve() }
-                    else if (isAllScrollingStop()) {
-                        //     console.log(isAllScrollingStop(), isScrollingX.value, isScrollingY.value, isCardMoving.value)
+                    if (!isListPlaying.value) { resolve(); return p }
+                    if (isScrollingY.value) {
                         setTimeout(() => {
-                            scrollRef2.current._scrollViewRef.scrollTo({ x: wordPos.value * screenWidth, animated: true })
-
-                            resolve()
-
-                        }, 300); //!!! time to delay after Y auto scroll fisnish
+                            checkAgain()
+                        }, 0);
                     }
                     else {
-                        //    console.log("===---+++++++++++", Date.now())
-                        setTimeout(() => {
-
-                            checkAgain()
-                        }, 10);
+                        resolve()
                     }
                 }
 
-
+                return p
             },
 
-
-
             function () {
-                sentencePlaingIndex.value = 0
-                if (!isListPlaying.value) {
-                    console.log("auto play stopped, moving X")
-                    if (wordPos.value !== scrollX.value / screenWidth) {
-                        scrollRef2.current._scrollViewRef.scrollTo({ x: wordPos.value * screenWidth, animated: true })
-                    }
-                    return Promise.resolve()
-                }
-
-                let resolve;
-                let reject;
-                const p = new Promise((resolve_, reject_) => {
-                    resolve = resolve_; reject = reject_
-                })
-                check(); return p
-
-                function check() {
-                    if (!isListPlaying.value) {
-                        console.log("auto play stopped, moving X")
-                        if (wordPos.value !== scrollX.value / screenWidth) {
-                            scrollRef2.current._scrollViewRef.scrollTo({ x: wordPos.value * screenWidth, animated: true })
-                        }
-                        resolve()
-                    }
-                    if (isAllScrollingStop()) {
-                        setTimeout(() => {
-                            autoPlay()
-                        }, 0);
-                        resolve()
-                    }
-                    else { setTimeout(() => { check() }, 10); }
-                }
- 
+                if (!isListPlaying.value) { resolve(); return p }
+                else { autoPlay() }
             }
 
 
@@ -1196,32 +1484,22 @@ export default function ContextProvider(props) {
 
 
     const downloadWord = useDebouncedCallback(
-        //function (word1, word2, setProgressWidth, setDownloadStatusTrue, setDownloadStatusFalse) {
-        function (word1, word2, fn) {
+        function (word, setProgressWidth, setDownloadStatusTrue, setDownloadStatusFalse) {
             Vibration.vibrate(50)
-
-            const hashName1 = CryptoJS(word1).toString();
-            const hashName2 = CryptoJS(word2).toString();
-            const hashName = hashName1 + hashName2;
-
-
-            return FileSystem.downloadAsync(
-                `https://audio.wordhippo.com/mp3/translate_tts?ie=UTF-8&tl=en-US&tk=590080.996406&client=t&q=${word2}`,
+            setProgressWidth && setProgressWidth()
+            FileSystem.downloadAsync(
+                `https://audio.wordhippo.com/mp3/translate_tts?ie=UTF-8&tl=en-US&tk=590080.996406&client=t&q=${word}`,
                 // https://fanyi.baidu.com/gettts?lan=uk&text=go as fast as you can&spd=3
 
-                FileSystem.documentDirectory + hashName + '.mp3'
+                FileSystem.documentDirectory + word + '.mp3'
             )
                 .then(({ uri }) => {
                     console.log('Finished downloading to ', uri);
-
-                    setRefreshState(Math.random())
-                    fn && fn()
-                    Promise.resolve(word2 + " downloaded")
+                    setDownloadStatusTrue && setDownloadStatusTrue()
                 })
                 .catch(error => {
                     console.error(error);
-
-                    Promise.resolve(word2 + " error on downloading")
+                    setDownloadStatusFalse && setDownloadStatusFalse()
                 });
         },
         1000,
@@ -1229,58 +1507,10 @@ export default function ContextProvider(props) {
 
     )
 
-    function deleteDownloadWord(word1, word2, fn) {
-        const hashName1 = CryptoJS(word1).toString();
-        const hashName2 = CryptoJS(word2).toString();
-        const hashName = hashName1 + hashName2;
-        Vibration.vibrate(50)
-
-
-        return FileSystem.getInfoAsync(FileSystem.documentDirectory + `${hashName}.mp3`)
-            .then((item) => {
-                const { exists, isDirectory, size, uri } = item
-                if (!exists) {
-                    console.log(word2 + " is not found, cannot delete")
-                    //  setRefreshState(Math.random())
-
-                    Promise.resolve(word2 + " is not found, cannot delete")
-                }
-                else {
-                    return FileSystem.deleteAsync(FileSystem.documentDirectory + hashName + ".mp3", { idempotent: false })
-                        .then(() => {
-                            console.log(word2 + " deleteted")
-                            fn && fn()
-                            setRefreshState(Math.random())
-                            Promise.resolve(word2 + " deleteted")
-
-                        })
-                }
-
-
-            })
-
-
-    }
-
-
-
-    function vibrate(time = 50) {
-        Vibration.vibrate(time)
-    }
-
-
-    const [refreshState, setRefreshState] = useState(Date.now())
-    const isManualDrag = useSharedValue(false)
-
-
-    
-
-
 
     return (
 
         <Context.Provider value={{
-            vibrate,
             playSound0,
             playSound,
             audioSound,
@@ -1292,8 +1522,8 @@ export default function ContextProvider(props) {
             fetchTransParam,
 
             wordPos, isListPlaying,
-
-            stopPlay,
+            makePlayList,
+            startPlay, stopPlay,
             isListPlaying,
 
             scrollRef,
@@ -1302,7 +1532,7 @@ export default function ContextProvider(props) {
             // thumbX, thumbY,
             // preThumbX, preThumbY,
             frameTransY,
-
+            shouldFrameDisplay,
             speakingPos,
             yPos,
 
@@ -1318,21 +1548,12 @@ export default function ContextProvider(props) {
 
             audioPlayer,
             speak,
-            stopSpeak,
             autoPlay,
             downloadWord,
-            deleteDownloadWord,
+            isAutoScrollEnd,
 
             isScrollingY,
-            isScrollingX,
-            isCardMoving,
-
-
-            refreshState, setRefreshState,
-            isManualDrag,
-            checkPlaying,
-            sentencePlaingIndex
-
+            isScrollingX
         }}>
 
 

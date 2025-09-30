@@ -74,14 +74,17 @@ const styles = StyleSheet.create({
     textStyle: { width: 100, height: 80, backgroundColor: 'purple' },
     separator: {
         width: '100%',
-        borderBottomWidth: 0,
+        borderTopWidth: 0,
     },
     swipeable: {
-
+        // marginTop: 200,
         height: 80,
-
+        //  backgroundColor: 'papayawhip',
+        // backgroundColor: 'wheat',
         alignItems: 'center',
         borderWidth: 0,
+        borderBottomWidth: 0,
+        borderBottomColor: "rgba(168, 155, 147, 1)",//"#D6BD95",
         justifyContent: "center"
     },
 });
@@ -90,17 +93,19 @@ const styles = StyleSheet.create({
 function RightAction({ progress, drag, panel, sourceWord, index, visiblePanel, ...props }) {
 
 
-
     const { autoPlay, isListPlaying, vibrate, deleteDownloadWord, setRefreshState, frameTransY } = useContext(Context)
     const styleAnimation = useAnimatedStyle(() => {
         return {
             width: 80,
             height: 80,
             backgroundColor: "rgba(168, 155, 147, 1)",
+            transform: [{ translateX: 0 }],
             justifyContent: "flex-start",
             flexDirection: "row",
             alignItems: "center",
-            transform: [{ translateX: interpolate((drag.value), [0, -80], [80, 0], "extend") }]
+            borderBottomWidth: 0,
+
+
         };
     });
     const iconContainnerStyle = useAnimatedStyle(() => {
@@ -108,21 +113,16 @@ function RightAction({ progress, drag, panel, sourceWord, index, visiblePanel, .
         return {
             width: 80,
             height: 80,
-            //backgroundColor: "wheat",
-            backgroundColor: frameTransY.value >= 160 ? "#D6BD95" : "#e7cca0",
-
+            // backgroundColor: panelRef?.dowloadStatus?.value ? "#FCD19D" : "red",//"#D6BD95",
+            backgroundColor: "wheat",
             borderWidth: 0,
-            borderBottomWidth: 1,
-            borderBottomColor: "#D2B48C",
+            borderTopWidth: 1,// frameTransY.value === screenHeight - headHeight - 80 ? 0 : 1,
+            borderTopColor: index === 0 ? "transparent" : "rgba(168, 155, 147, 1)",//"#D6BD95",
         }
 
     })
 
 
-    const navigator = useNavigation()
-    function goSentenceSetting() {
-        navigator.navigate("SentenceSettingScreen", { wordPos: index })
-    }
 
 
     return (
@@ -131,12 +131,11 @@ function RightAction({ progress, drag, panel, sourceWord, index, visiblePanel, .
         <View style={styleAnimation}>
 
 
-            <GestureDetector gesture={Gesture.Tap()
+            <GestureDetector gesture={Gesture.LongPress()
                 .onStart(() => {
-
-                    //runOnJS(deleteDownloadWord)(sourceWord.wordName, sourceWord.wordName)
-                    runOnJS(goSentenceSetting)()
-                    panel?.close()
+                    // runOnJS(vibrate)(50)
+                    runOnJS(deleteDownloadWord)(sourceWord.wordName, sourceWord.wordName)
+                    panel.close()
                 })
                 .onEnd(() => { })
             }>
@@ -147,7 +146,7 @@ function RightAction({ progress, drag, panel, sourceWord, index, visiblePanel, .
 
                 <View style={[iconContainnerStyle]}>
                     <Icon
-                        name="settings" type='ionicon' color='orange'
+                        name="trash-outline" type='ionicon' color='orange'
                         containerStyle={{
                             width: 80, height: 80,
                             transform: [{ rotateZ: "0deg" }], alignItems: "center", justifyContent: "center"
@@ -172,19 +171,23 @@ function LeftAction({ progress, drag, panel, sourceWord, index, visiblePanel, ..
 
 
 
-    const { autoPlay, isListPlaying, frameTransY, setSource, sourceWordArr, setSouceWordArr, saveWordToFile } = useContext(Context)
+    const { autoPlay, isListPlaying, frameTransY } = useContext(Context)
     const styleAnimation = useAnimatedStyle(() => {
 
         return {
             width: screenWidth,
             width: 80,
             height: 80,
+
             backgroundColor: "rgba(168, 155, 147, 1)",
+            //  transform: [{ translateX: drag.value - screenWidth }],
+            transform: [{ translateX: 0 }],
             justifyContent: "flex-start",
             flexDirection: "row",
             alignItems: "center",
+            borderBottomWidth: 0,
 
-            transform: [{ translateX: interpolate((drag.value), [0, 80], [-80, 0], "extend") }]
+
         };
     });
 
@@ -198,38 +201,14 @@ function LeftAction({ progress, drag, panel, sourceWord, index, visiblePanel, ..
         return {
             width: 80,
             height: 80,
-            //backgroundColor: "wheat",
-            backgroundColor: frameTransY.value >= 160 ? "#D6BD95" : "#e7cca0",
-
-
+            // backgroundColor: panelRef?.dowloadStatus?.value ? "#FCD19D" : "red",//"#D6BD95",
+            backgroundColor: "wheat",
             borderWidth: 0,
-            borderBottomWidth: 1,
-            borderBottomColor: "#D2B48C",
+            borderTopWidth: 1,// frameTransY.value === screenHeight - headHeight - 80 ? 0 : 1,
+            borderTopColor: index === 0 ? "transparent" : "rgba(168, 155, 147, 1)",//"#D6BD95",
         }
 
     })
-
-
-    function topTime() {
-        setSouceWordArr(arr => {
-            const arr_ = arr.map((item) => {
-                if (item.wordName !== sourceWord.wordName) {
-                    return item
-                }
-                else {
-                    return { ...item, toppingTime: Date.now() }
-                }
-            })
-            arr_.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
-            return [...arr_]
-        })
-
-        setTimeout(() => {
-            saveWordToFile()
-        }, 0);
-    }
-
-
 
     return (
         <View style={styleAnimation}>
@@ -238,19 +217,17 @@ function LeftAction({ progress, drag, panel, sourceWord, index, visiblePanel, ..
             <GestureDetector gesture={Gesture.Tap().onStart(() => {
                 //console.log(panel)
             }).onEnd(() => {
-                //runOnJS(showTime)(sourceWord.toppingTime)
-                runOnJS(topTime)()
-                panel?.close()
+                panel.close()
             })}>
 
                 <View style={[iconContainnerStyle]}>
                     <Icon
-                        name="arrow-up-circle-outline" type='ionicon' color='orange'
+                        name="play-outline" type='ionicon' color='orange'
                         containerStyle={{
                             width: 80, height: 80,
                             transform: [{ rotateZ: "0deg" }], alignItems: "center", justifyContent: "center"
                         }}
-                        size={50}
+                        size={60}
 
                     />
                 </View>
@@ -324,7 +301,7 @@ export default function SwipebleRowItem(props) {
                 // console.log(panelRef.current)
 
                 setTimeout(() => {
-                    panelRef.current?.close()
+                    panelRef.current.close()
                 }, 3000);
 
             }}
@@ -344,35 +321,35 @@ export function PanelItem({ sourceWord, index, visiblePanel, panelRef, ...props 
     const { sourceWordArr, scrollRef2, wordPos, frameTransY, shouldFrameDisplay, isListPlaying,
         audioPlayer,
         speak, autoPlay, stopSpeak,
-        downloadWord, deleteDownloadWord, isScrollingX, isScrollingY, scrollY,
+        downloadWord, isScrollingX, isScrollingY, setIsScrollingX,
 
         refreshState, setRefreshState, isManualDrag
     } = useContext(Context)
 
 
 
-    function scrollRef2Scroll0() { // may causing frameTransY pause when card has heavy load in expoPlay
+    function scrollRef2Scroll() {
 
         setTimeout(() => {
             scrollRef2.current._scrollViewRef.scrollTo({ x: index * screenWidth, animated: false })
             setTimeout(() => {
                 isManualDrag.value = false
                 isScrollingX.value = false
-            }, 100);
+            }, 50);
         }, 0);
 
     }
 
 
 
-    function scrollRef2Scroll() {
+    function scrollRef2Scroll0() {
         scrollRef2.current._scrollViewRef.scrollTo({
-            x: Math.max(1, index * screenWidth - 1),
+            x: Math.max(10, index * screenWidth - 1),
             animated: false
         })
         setTimeout(() => {
             scrollRef2.current._scrollViewRef.scrollTo({ x: index * screenWidth, animated: true })
-        }, 100);
+        }, 0);
     }
 
 
@@ -435,19 +412,31 @@ export function PanelItem({ sourceWord, index, visiblePanel, panelRef, ...props 
 
 
                     if (frameTransY.value === 0) {
+
+
+                        // if (!isListPlaying.value) {
+                        //     wordPos.value = index
+                        //     runOnJS(scrollRef2Scroll)()
+                        // }
+
                         frameTransY.value = withTiming(y, { duration: 200 }, function () {
                             if (Math.abs(frameTransY.value - (screenHeight - (headHeight + 80))) < 20) {
                                 frameTransY.value = screenHeight - headHeight - 80
                             }
 
                         })
+
+
+
+
+
                     }
 
 
                     return
                 }
                 else {
-                    //frameTransY.value = withTiming(0, { duration: 200 })
+                    frameTransY.value = withTiming(0, { duration: 200 })
                     runOnJS(delayStopSpeak)()
                     return
                 }
@@ -493,15 +482,16 @@ export function PanelItem({ sourceWord, index, visiblePanel, panelRef, ...props 
     const downloadStatus = useSharedValue(false)
 
 
-
+    const isFingerOn = useSharedValue(false)
     useEffect(() => {
 
+        isFingerOn.value = false
         const hashName = CryptoJS(sourceWord.wordName).toString();
 
         FileSystem.getInfoAsync(FileSystem.documentDirectory + `/${hashName + hashName}.mp3`).then(item => {
             const { exists, isDirectory, size, uri } = item
             downloadStatus.value = exists
-
+            progressWidth.value = 0
 
         })
     }, [visiblePanel.current, refreshState])
@@ -519,40 +509,35 @@ export function PanelItem({ sourceWord, index, visiblePanel, panelRef, ...props 
                 runOnJS(downloadWord)(sourceWord.wordName, sourceWord.wordName)
 
             }
-            else {
-                runOnJS(deleteDownloadWord)(sourceWord.wordName, sourceWord.wordName)
-            }
+
 
         })
 
 
     const panelStyle = useAnimatedStyle(() => {
-
         return {
 
             width: screenWidth, height: 80,
             borderWidth: 0,
-            borderBottomWidth: 1,
-            borderBottomColor: "#D2B48C",
+            borderTopWidth: 1,// frameTransY.value === screenHeight - headHeight - 80 ? 0 : 1,
+            borderTopColor: index === 0 ? "transparent" : "rgba(168, 155, 147, 1)",//"#D6BD95",
             paddingHorizontal: 4,
             paddingBottom: 0,
-            backgroundColor: frameTransY.value >= 160
-                ? downloadStatus.value
-                    ? "#fcd19dff"
-                    : "#D6BD95"
-                : downloadStatus.value
-                    ? "wheat"
-                    : "#e7cca0",
+            backgroundColor: downloadStatus.value
+                ? "#FCD19D"
+                : "#D6BD95"
 
-
-            // backgroundColor: isDownloaded.value ? "wheat" : "rgba(214, 189, 149, 0.5)",// "#D6BD95",
         }
     })
 
+    const progressWidth = useSharedValue(0)
 
 
 
+    // useDerivedValue(() => {
 
+    //     sharedStatus.current[sourceWord.wordName] = downloadStatus
+    // }, [downloadStatus.value, progressWidth.value])
 
 
 
@@ -569,12 +554,11 @@ export function PanelItem({ sourceWord, index, visiblePanel, panelRef, ...props 
             position: "absolute",
             top: 0,
             left: 0,
-            opacity: wordPos.value === index ? 1 : 0,
-            // opacity: wordPos.value == index
-            //     ? 1
-            //     : frameTransY.value === screenHeight - headHeight - 80
-            //         ? isListPlaying.value ? 1 : 1
-            //         : 0,
+            opacity: wordPos.value == index
+                ? 1
+                : frameTransY.value === screenHeight - headHeight - 80
+                    ? isListPlaying.value ? 1 : 1
+                    : 0,
             // opacity: wordPos.value == index
             //     ? 1
             //     : frameTransY.value === screenHeight - headHeight - 80
@@ -589,6 +573,15 @@ export function PanelItem({ sourceWord, index, visiblePanel, panelRef, ...props 
     })
 
 
+    const autoButtonStyle = useAnimatedStyle(() => {
+        return {
+            width: 100, height: 80,
+            position: "absolute",
+            left: 0, top: 0,
+            backgroundColor: isFingerOn.value ? "orange" : "transparent",
+            opacity: isFingerOn.value ? 0.5 : 0.1
+        }
+    })
 
 
     const textWordStyle = useAnimatedStyle(() => {
@@ -615,7 +608,7 @@ export function PanelItem({ sourceWord, index, visiblePanel, panelRef, ...props 
 
     return (
         <>
-
+            {/* <View style={{ width: screenWidth, height: 80 }}> */}
 
             {/* </> <GestureDetector gesture={Gesture.Simultaneous(doubleTap, singleTap, longPress)}> */}
 
@@ -630,10 +623,10 @@ export function PanelItem({ sourceWord, index, visiblePanel, panelRef, ...props 
                             start={{ x: 0, y: 1 }}
                             end={{ x: 1, y: 1 }}
                             locations={[0 / screenWidth, 120 / screenWidth, 0.95]}
-                            //Example:
+                            //Example:  
                             // colors={[red', 'green']}
                             // locations={[0.3,0.4]}  // full red 30% of width   //mixed red-and-green (40% - 30% = 10%) of width     // full green  100% - 40% = 60% of width
-                            //                        // ______red = 30%______   ___mixed = 10%___   _________green = 60%__________________
+                            //                        // ______red = 30%______   ___mixed = 10%___   _________green = 60%__________________     
                             style={{
                                 position: 'absolute',
                                 left: 0,
@@ -647,7 +640,9 @@ export function PanelItem({ sourceWord, index, visiblePanel, panelRef, ...props 
                     </View>
 
 
-
+                    {/* <Text ellipsizeMode={"tail"} style={{ fontSize: 15, transform: [{ translateY: 0 }], color: "#a55e0cff" }} >
+                            {index + " "}
+                        </Text> */}
                     <Text numberOfLines={1} ellipsizeMode={"tail"} style={textWordStyle} >
                         {sourceWord.wordName + "\n"}
                     </Text>
@@ -668,9 +663,126 @@ export function PanelItem({ sourceWord, index, visiblePanel, panelRef, ...props 
 
 
 
+            {/* <GestureDetector gesture={
+                Gesture.Exclusive(
+                    Gesture.Tap().numberOfTaps(2)
+                        .onFinalize(e => {
+                            isFingerOn.value = false
+                        })
+                        .onTouchesDown((e) => {
+                            isFingerOn.value = true
+                        })
+                        .onTouchesUp((e) => {
+                            isFingerOn.value = false
+                        })
+
+                        .onEnd((e) => {
+
+                            isListPlaying.value = !isListPlaying.value
+                            if (isListPlaying.value) {
+
+                                wordPos.value = index
+                                runOnJS(scrollRef2Scroll)()
+                                runOnJS(autoPlay)()
+
+
+                                if (frameTransY.value === 0) {
+                                    const y = Math.min(screenHeight - (headHeight + 80), Math.max(160, screenHeight - e.absoluteY - (80 - e.y)))
+                                    frameTransY.value = withTiming(y, { duration: 200 }, () => { })
+                                }
+
+
+
+
+                            }
+                            else {
+
+
+                                runOnJS(stopSpeak)()
+
+                                // const y = Math.min(screenHeight - (headHeight + 80), Math.max(160, screenHeight - e.absoluteY - (80 - e.y)))
+                                // shouldFrameDisplay.value = true
+                                // frameTransY.value = withTiming(y, { duration: 200 }, () => { })
+
+
+
+
+                            }
+                        }),
+                    Gesture.Tap().numberOfTaps(1)
+                        .onFinalize(e => {
+                            isFingerOn.value = false
+                        })
+                        .onTouchesDown((e) => {
+                            isFingerOn.value = true
+                        })
+                        .onTouchesUp((e) => {
+                            isFingerOn.value = false
+                        })
+
+                        .onStart(() => {
+                            if (!isListPlaying.value) {
+                                wordPos.value = index
+                                runOnJS(scrollRef2Scroll)()
+                                runOnJS(speak)(sourceWord.wordName, sourceWord.wordName)
+                            }
+                        }),
+                    Gesture.LongPress()
+                        .onFinalize(e => {
+                            isFingerOn.value = false
+                        })
+                        .onTouchesDown((e) => {
+                            isFingerOn.value = true
+                        })
+                        .onTouchesUp((e) => {
+                            isFingerOn.value = false
+                        })
+                        .onStart(e => {
+                            if (!downloadStatus.value) {
+                                runOnJS(downloadWord)(sourceWord.wordName, sourceWord.wordName)
+
+                            }
+
+
+                        })
+
+
+
+                    //singleTap, longPress
+
+                )
+            }
+            >
+
+                <View style={[autoButtonStyle]} />
+
+            </GestureDetector> */}
+
+
+
+            {/* </View> */}
         </>)
 
 
 }
 
+{/* <View style={[iconContainnerStyle]}>
+                    <Icon
+                        name="play-outline" type='ionicon' color='wheat'
+                        containerStyle={{
+                            width: 80, height: 80,
+                            transform: [{ rotateZ: "0deg" }], alignItems: "center", justifyContent: "center"
+                        }}
+                        size={60}
 
+                    />
+                </View> */}
+
+function FunctionalComponent(props) {
+    return <View
+        collapsable={false}
+        collapsableChildren={false}
+        style={{ width: 200, height: 80, left: 0, top: 0, zIndex: 80, backgroundColor: "red", transform: [{ translateY: -80 }], opacity: 0.5 }} >
+        {props.children}
+    </View>;
+}

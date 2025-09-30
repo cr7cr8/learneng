@@ -39,8 +39,7 @@ import ReAnimated, {
     useDerivedValue,
     SlideInRight,
     interpolate,
-    withRepeat,
-
+    withRepeat
 
 } from 'react-native-reanimated';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
@@ -73,9 +72,6 @@ import SwipebleRowItem from "./HomeScreenComp/SwipebleRowItem"
 import Card from './HomeScreenComp/Card';
 import ScrollPivot from './HomeScreenComp/ScrollPivot';
 import CryptoJS from 'crypto-js/sha256';
-
-//import Ionicons from '@expo/vector-icons/Ionicons';
-
 var sign = CryptoJS("hellofff").toString();
 console.log(">>>>>>>", sign)
 
@@ -95,12 +91,11 @@ export default function HomeScreen() {
         return {
             width: screenWidth,
             height: headHeight,
-
+            // backgroundColor: "#faf",
             backgroundColor: "wheat",
             flexDirection: "row",
             justifyContent: "space-around",
             alignItems: "flex-end",
-
 
         }
     })
@@ -110,9 +105,7 @@ export default function HomeScreen() {
         return {
             width: screenWidth,
             height: screenHeight - headHeight,
-            backgroundColor: "#D6BD95",//"darkgray",
-            // transform: [{ scale: interpolate(frameTransY.value, [720, 160], [0.9, 1], "clamp") }],
-            // opacity: interpolate(frameTransY.value, [720, 160], [0.8, 1], "clamp")
+            backgroundColor: "gray",
         }
 
     })
@@ -141,32 +134,26 @@ export default function HomeScreen() {
     )
     const [layoutProvider2, setlayoutProvider2] = useState(
         new LayoutProvider(
-            (index) => { const rowObj = { index, type: "typeB", cardObj: { heightArr: new Array(sourceWordArr[index]?.exampleEnglishArr.length * 2 || 0).fill(false), } }; return rowObj },
-            (rowObj, dim, index) => {
+            (index,) => { const typeObj = { index, type: "typeB", sourceWord: sourceWordArr[index] && sourceWordArr[index] }; return typeObj },
+            (typeObj, dim, index) => {
                 if (index === index) { dim.width = screenWidth; dim.height = screenHeight - headHeight; }
                 else { dim.width = screenWidth; dim.height = screenHeight - headHeight; }
             }
         )
     )
-    // useEffect(() => {
+    useEffect(() => {
+        setlayoutProvider2(new LayoutProvider(
+            (index,) => { const typeObj = { index, type: "typeB", sourceWord: sourceWordArr[index] && sourceWordArr[index] }; return typeObj },
+            (typeObj, dim) => {
+                dim.width = screenWidth;
+                dim.height = screenHeight - headHeight;
 
-    //     setlayoutProvider2(new LayoutProvider(
-    //         (index) => {
-    //             const rowObj = {
-    //                 index, type: "typeB", cardObj: {
-    //                     heightArr:new Array(sourceWordArr[index]?.exampleEnglishArr.length * 2 || 0).fill(false),
-    //                 }
-    //             }; return rowObj
-    //         },
-    //         (rowObj, dim, index) => {
-    //             if (index === index) { dim.width = screenWidth; dim.height = screenHeight - headHeight; }
-    //             else { dim.width = screenWidth; dim.height = screenHeight - headHeight; }
-    //         }
-    //     ))
-    // }, [sourceWordArr])
+            }
+        ))
+    }, [sourceWordArr])
 
 
-
+    //const frameTransY = useSharedValue(screenHeight - headHeight)
 
 
     const frameStyle2 = useAnimatedStyle(() => {
@@ -194,6 +181,98 @@ export default function HomeScreen() {
 
 
 
+    // }, [wordPos.value])
+
+    // const speak = useDebouncedCallback((word) => {
+    //     Speech.stop()
+    //     Speech.speak(word, {
+    //         onDone: () => {
+    //             //Speech.speak(sourceWord.meaningSound)
+    //         }
+    //     });
+
+    // }, 300, { leading: true, trailing: true })
+
+
+    const panningBarStyle = useAnimatedStyle(() => {
+        //const isOnFirst = frameTransY.value === screenHeight - (headHeight + 80)
+        return {
+
+
+            width: screenWidth,
+            height: 20,
+
+
+
+            backgroundColor: isCardMoving.value ? "orange" : "wheat",
+            position: "absolute",
+            zIndex: 100,
+            justifyContent: "center",
+            alignItems: "flex-start",
+            display: "flex",
+            flexDirection: "row",
+            //isScrollingY.value ? 0.5 : 0.51,
+            elevation: isCardMoving.value ? 10 : 0,
+            opacity: (!isScrollingY.value) && (!isScrollingX.value) ? 1 : 0,
+        }
+
+    })
+
+    const panInfo = useSharedValue(0)
+    const pan = Gesture.Pan()
+        //.enabled(enablePan)
+        .onBegin(e => {
+            isCardMoving.value = true
+        })
+        .onStart((e) => {
+            // if (isScrollingY.value) { return }
+
+            panInfo.value = frameTransY.value
+        })
+        .onChange(e => {
+            //   if (isScrollingY.value) { return }
+            isScrollingY.value = false
+            isCardMoving.value = true
+            frameTransY.value = Math.max(0, Math.min(screenHeight - headHeight, frameTransY.value - e.changeY))
+
+
+
+        })
+        .onTouchesUp(e => {
+            //  if (isScrollingY.value) { return }
+            if (((screenHeight - headHeight) - frameTransY.value) < 80) {
+                frameTransY.value = withTiming(screenHeight - headHeight, { duration: 50 })
+            }
+
+            else if (frameTransY.value < 160) {
+                frameTransY.value = withTiming(0, { duration: 50 })
+
+            }
+            isCardMoving.value = false
+        })
+        //   .activeOffsetY([-10, 10])   // this line also use   .minDistance(20)
+
+        .onFinalize(() => {
+            isCardMoving.value = false
+        })
+
+    const doubleTap = Gesture.Tap().numberOfTaps(2).maxDelay(1000).onEnd(e => {
+        //console.log(frameTransY.value)
+        if (frameTransY.value === screenHeight - headHeight) {
+            frameTransY.value = withTiming(0)
+        }
+        else {
+            frameTransY.value = withTiming(screenHeight - headHeight)
+        }
+
+        // if (frameTransY.value === screenHeight - headHeight - 80) {
+        //     frameTransY.value = withTiming(160)
+        // }
+        // else {
+        //     frameTransY.value = withTiming(screenHeight - headHeight - 80)
+        // }
+    })
+
 
 
     const footStyle = useAnimatedStyle(() => {
@@ -206,74 +285,25 @@ export default function HomeScreen() {
         }
     })
 
+    // const [snapInterval, setSnapInterval] = useState(undefined)
+    // useDerivedValue(() => {
+    //     if (frameTransY.value === screenHeight - headHeight - 80) {
+    //         runOnJS(setSnapInterval)(80)
+    //     }
+    //     else {
+    //         runOnJS(setSnapInterval)(undefined)
+    //     }
 
-    const navigation = useNavigation()
+    // }, [frameTransY.value])
 
+    // useDerivedValue(()=>{
+    // console.log("scrollXvalue",scrollX.value,scrollX.value/screenWidth,Math.round(scrollX.value/screenWidth))
+    // },[scrollX.value])
 
-
-    // useEffect(() => {
-    //     //navigation.addListener("blur", () => {
-    //             //console.log("going to leave the page")
-    //     //})
-
-
-    //     //  if (navigation.getState().routes[0].name === "RegScreen") {
-    //     const unsubscribe = navigation.addListener("beforeRemove", function (e) {
-    //         // console.log(navigation.getState().routes[0].name === "RegScreen")
-    //         e.preventDefault()
-    //         BackHandler.exitApp()
-    //     })
-
-    //     return unsubscribe
-    //     // }
-    // }, [])
-
-    
     return (
-        <View
-            style={[{
-                width: 2 * screenWidth, height: screenHeight - headHeight, backgroundColor: "#D6BD95",// "#eee", //"darkgray"
-                opacity: 1, flexDirection: "column",
-                //     backgroundColor: "rgba(245, 222, 179,1)"
-            },
-
-
-            ]}>
+        <View style={{ width: 2 * screenWidth, height: screenHeight - headHeight, backgroundColor: "#eee", opacity: 1, flexDirection: "column", }}>
 
             <View style={[headerViewStyle]}>
-                {/* <View style={useAnimatedStyle(() => {
-
-                    return {
-                        transform: [{ scale: frameTransY.value > 160 ? 0: 1 }],
-                        width:screenWidth,
-                        height:80,
-                        position:"absolute",
-                    }
-
-                })}>
-                    <LinearGradient
-                     
-
-                        colors={["wheat", 'rgba(252, 209, 157, 1)',]}
-
-
-                        dither={true}
-                        start={{ x: 0, y: 0.3 }}
-                        end={{ x: 0, y: 1 }}
-                        locations={[0.1, 0.9]}
-                        //Example:  
-                        // colors={[red', 'green']}
-                        // locations={[0.3,0.4]}  // full red 30% of width   //mixed red-and-green (40% - 30% = 10%) of width     // full green  100% - 40% = 60% of width
-                        //                        // ______red = 30%______   ___mixed = 10%___   _________green = 60%__________________     
-                        style={{
-                            width: screenWidth,
-                            position: "absolute",
-                            top: 0,
-                            bottom: 0
-
-                        }}
-                    />
-                </View> */}
 
                 <TouchableOpacity activeOpacity={0.2} onPressOut={function () { }}>
                     <Icon
@@ -302,13 +332,9 @@ export default function HomeScreen() {
 
 
 
-                <TouchableOpacity activeOpacity={0.2} onPressOut={function () {
-                                                                                                        //string ingerger to show the mainpage
-                          navigation.navigate("SentenceSettingScreen", { wordPos: JSON.parse(JSON.stringify(wordPos.value)) })
-               
-                }}>
+                <TouchableOpacity activeOpacity={0.2} onPressOut={function () { }}>
                     <Icon
-                        name="settings" type='ionicon' color='orange'
+                        name="save" type='ionicon' color='orange'
                         containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "180deg" }] }}
                         size={40}
                     />
@@ -350,23 +376,46 @@ export default function HomeScreen() {
                     onEndReachedThreshold={0}
                     onEndReachedThresholdRelative={0}
                     showsVerticalScrollIndicator={true}
-                    decelerationRate = {1}
+
 
                     renderFooter={function () {
+
+
+                        // return <LinearGradient
+                        //     colors={["#D6BD95",  "#fcd19dbb"]}
+                        //     //colors={["#D6BD95", "wheat"]}
+                        //     dither={true}
+                        //     start={{ x: 0, y: 0 }}
+                        //     end={{ x: 0, y: 1 }}
+                        //     locations={[0.1, 0.8]}
+                        //     //Example:  
+                        //     // colors={[red', 'green']}
+                        //     // locations={[0.3,0.4]}  // full red 30% of width   //mixed red-and-green (40% - 30% = 10%) of width     // full green  100% - 40% = 60% of width
+                        //     //                        // ______red = 30%______   ___mixed = 10%___   _________green = 60%__________________     
+                        //     style={{
+                        //         // position: 'absolute',
+                        //         // left: 0,
+                        //         // right: 0,
+                        //         // top: 0,
+                        //         height: screenHeight - headHeight - 80,
+                        //         width: screenWidth,
+                        //         //     transform:[{translateX:10}]
+                        //     }}
+                        // />
+
                         return <View style={[footStyle]} />
                     }}
 
                     scrollViewProps={{
-                        decelerationRate:0.9999, // not working
                         // scrollEnabled: enableScroll,
                         //snapToInterval: snapInterval,
                         disableIntervalMomentum: false,
-                        // refreshControl: (
-                        //     <RefreshControl
-                        //         refreshing={false}
-                        //         onRefresh={async () => { console.log("refreshing -- 1") }}
-                        //     />
-                        // ),
+                        refreshControl: (
+                            <RefreshControl
+                                refreshing={false}
+                                onRefresh={async () => { console.log("refreshing -- 1") }}
+                            />
+                        ),
                         //contentOffset: { y: wordPos.value * 80, x: 0 }, // not working with wordPos.value
                         ref: scrollRef,
 
@@ -521,10 +570,21 @@ export default function HomeScreen() {
                                     )
                                 }
 
+
+                                // scrollRef.current._scrollViewRef.scrollTo({
+                                //     y: e.nativeEvent.contentOffset.x / screenWidth * 80 - (screenHeight - frameTransY.value - headHeight) + 80,
+                                //     animated: true
+                                // })
+
                                 scrollRef.current._scrollViewRef.scrollTo({
                                     y: e.nativeEvent.contentOffset.x / screenWidth * 80 - (screenHeight - frameTransY.value - headHeight),
                                     animated: true
                                 })
+
+
+
+
+
                             }
 
 

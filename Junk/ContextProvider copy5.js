@@ -22,7 +22,7 @@ import { useDebounce, useDebouncedCallback, useThrottledCallback } from 'use-deb
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 
-import { defaultwordsArr } from "./defaultwords";
+import defaultwordsArr from "./defaultwords";
 
 import * as Speech from 'expo-speech';
 import { useAudioPlayer } from 'expo-audio';
@@ -45,37 +45,6 @@ configureReanimatedLogger({
     strict: false//true, // Reanimated runs in strict mode by default
 });
 
-
-
-// import * as BackgroundTask from 'expo-background-task';
-// import * as TaskManager from 'expo-task-manager';
-
-// const BACKGROUND_TASK_NAME = 'MY_BACKGROUND_TASK';
-
-// TaskManager.defineTask(BACKGROUND_TASK_NAME, async () => {
-//     try {
-//         console.log('Background task executed!');
-//         // Add your background logic here (e.g., API calls, data sync)
-//     } catch (error) {
-//         console.error('Background task failed:', error);
-//         return BackgroundTask.BackgroundTaskResult.Failed;
-//     }
-//     return BackgroundTask.BackgroundTaskResult.Success;
-// });
-
-
-
-
-// async function registerBackgroundTask() {
-//     await BackgroundTask.registerTaskAsync(BACKGROUND_TASK_NAME, {
-//         minimumInterval: 1, // Minimum interval in minutes (Android only)
-//     });
-// }
-
-// registerBackgroundTask();
-
-
-// BackgroundTask.triggerTaskWorkerForTestingAsync();
 
 export default function ContextProvider(props) {
 
@@ -149,9 +118,9 @@ export default function ContextProvider(props) {
 
 
     useEffect(() => {
-        //setSortingObj()
+        setSortingObj()
         //fetchTransParam().then(data => console.log(data))
-        //refreshWordToFile()
+        refreshWordToFile()
 
         // FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
 
@@ -174,19 +143,10 @@ export default function ContextProvider(props) {
     }, [])
 
 
-
-
-
-
     useEffect(() => {
         //    console.log(appState.current)
         const unsubscribe = AppState.addEventListener("change", (nextAppState) => {
             console.log("----------", nextAppState)
-
-
-            // BackgroundTask.triggerTaskWorkerForTestingAsync().then(a => {
-            //     console.log(a)
-            // });
 
 
             // if (nextAppState !== "active") {
@@ -246,7 +206,7 @@ export default function ContextProvider(props) {
                             FileSystem.writeAsStringAsync(FileSystem.documentDirectory + "allwords.txt", JSON.stringify(
                                 [...arr, ...arr2]
                             )).then(info => {
-                                console.log("saving done,allwords.txt has been rewritten")
+                                console.log("allwords.txt has been rewritten")
                                 isSaving.value = false
 
                             })
@@ -265,7 +225,7 @@ export default function ContextProvider(props) {
                         return sourceWordArr.find(word => { return word.wordName === oriWord.wordName }) || oriWord
                     })
                     FileSystem.writeAsStringAsync(FileSystem.documentDirectory + "allwords.txt", JSON.stringify(arr)).then(info => {
-                        console.log("saving done,allwords.txt has been rewritten")
+                        console.log("allwords.txt has been rewritten")
                         isSaving.value = false
 
                     })
@@ -282,10 +242,9 @@ export default function ContextProvider(props) {
 
     const refreshWordToFile = useDebouncedCallback(
         () => {
-            isSaving.value = true
             return new Promise((resolve, reject) => {
                 console.log("refreshWordToFile")
-                //  isSaving.value = true
+                isSaving.value = true
                 FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(data => {
                     if (data.includes("allwords.txt")) {
 
@@ -303,14 +262,14 @@ export default function ContextProvider(props) {
                                 FileSystem.writeAsStringAsync(FileSystem.documentDirectory + "allwords.txt", JSON.stringify(
                                     [...arr, ...arr2]
                                 )).then(info => {
-                                    console.log("allwords.txt has been rewritten ======")
-                                    isSaving.value = false
+                                    console.log("allwords.txt has been rewritten")
+
                                     resolve()
                                 })
                             })
                             .catch(err => {
                                 console.log(err)
-                                isSaving.value = false
+
                                 reject()
                             })
 
@@ -422,14 +381,17 @@ export default function ContextProvider(props) {
                 console.log("found allword.txt")
                 FileSystem.readAsStringAsync(FileSystem.documentDirectory + "allwords.txt").then(content => {
                     // setSouceWordArr(JSON.parse(content).slice(0,1))
-
                     let arr = JSON.parse(content)
 
-                    //arr.sort((word1, word2) => (word1.wordName < word2.wordName ? -1 : 1))//.reverse()
-                    arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+                    //arr.sort((word1, word2) => { return word2.toppingTime - word1.toppingTime })
+                    // Array(arr).sort()//.reverse()
+                    arr.reverse()
+                    // setSouceWordArr(arr.map(item => {
 
+                    //     item.level = Math.floor(Math.random() * 6)
+                    //     return item
 
-
+                    // }))
                     setSouceWordArr(arr)
                 })
 
@@ -452,12 +414,12 @@ export default function ContextProvider(props) {
                 })
 
 
-                // arr.sort((word1, word2) => {
+                arr.sort((word1, word2) => {
 
-                //    // return Number(word2.toppingTime) - Number(word1.toppingTime)
+                    return Number(word2.toppingTime) - Number(word1.toppingTime)
 
-                //       return Number(word2) - Number(word1)
-                // })
+
+                })
 
 
                 setSouceWordArr(arr)
@@ -846,47 +808,14 @@ export default function ContextProvider(props) {
 
 
     const audioPlayer = useAudioPlayer(``)
-
     // const audioPlayer = useAudioPlayer(`https://audio.wordhippo.com/mp3/translate_tts?ie=UTF-8&tl=en-US&tk=590080.996406&client=t&q=this is a hippo`)
 
     let [outerResolve] = useState()
     const stopSpeak = () => {
-
         audioPlayer.pause()
         Speech.stop()
-
+        //console.log("audio is paused")
         outerResolve && outerResolve("audio is paused")
-
-    }
-
-    function checkPlaying() {
-
-        return promiseSequential([
-
-            isSpeakPlayingAsync,
-
-            isAudioPlayingAsync,
-
-
-
-        ])
-
-    }
-
-    function isSpeakPlayingAsync() {
-        return Speech.isSpeakingAsync().then(res => {
-            return Promise.resolve(res)
-        })
-
-    }
-
-    function isAudioPlayingAsync() {
-
-        return new Promise((resolve, reject) => {
-            resolve(audioPlayer.currentStatus.playing)
-        })
-
-
 
     }
 
@@ -979,39 +908,65 @@ export default function ContextProvider(props) {
 
 
     const isScrollingY = useSharedValue(false)
+
+
     const isScrollingX = useSharedValue(false)
+    function setIsScrollingX(bool) {
+        isScrollingX.value = bool
+    }
+
     const isCardMoving = useSharedValue(false)
 
+    useDerivedValue(() => {
+        // console.log("=================", isScrollingY.value, isCardMoving.value, isScrollingX.value)
 
+
+
+
+    }, [isScrollingX.value, isScrollingY.value, isCardMoving.value, isListPlaying.value])
 
 
     function isAllScrollingStop() {
         "worklet"
+        // console.log(!isScrollingY.value, !isCardMoving.value, !isScrollingX.value)
         return (!isScrollingY.value) && (!isCardMoving.value) && (!isScrollingX.value)
+    }
+
+
+    function isSomethingScrollingInUI(yesFn, noFn) {
+        "worklet"
+        console.log("==============+++++++++++=====isScrollingY,X, Card", isScrollingY.value, isScrollingX.value, isCardMoving.value)
+        if ((isScrollingY.value) || (isCardMoving.value) || (isScrollingX.value)) {
+            runOnJS(yesFn)()
+        }
+        else {
+            runOnJS(noFn)()
+        }
+
+    }
+    function keepCheckingScrollingUntillStop(fn = () => { }) {
+        console.log("in keep calling")
+        runOnUI(isSomethingScrollingInUI)(function () { keepCheckingScrollingUntillStop(fn) }, fn)
     }
 
 
 
 
-    const sentencePlaingIndex = useSharedValue(0)
     const autoPlay = useDebouncedCallback(function () {
 
         const arr = []
-        ///////////////////////////////
         // arr.push(function () {
-        //     sentencePlaingIndex.value = 0
         //     if (!isListPlaying.value) { return Promise.resolve() }
-
         //     return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
         // })
-        //////////////////////////////
 
-        for (let i = 0; i < sourceWordArr[wordPos.value].firstTimeAmount; i++) {
-            arr.push(function () {
-                if (!isListPlaying.value) { return Promise.resolve() }
-                return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
-            })
-        }
+
+        // for (let i = 0; i < sourceWordArr[wordPos.value].firstTimeAmount; i++) {
+        //     arr.push(function () {
+        //         if (!isListPlaying.value) { return Promise.resolve() }
+        //         return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].wordName)
+        //     })
+        // }
 
         // for (let i = 0; i < sourceWordArr[wordPos.value].firstTimeMeaningAmount; i++) {
         //     arr.push(function () {
@@ -1034,13 +989,12 @@ export default function ContextProvider(props) {
 
         for (let i = 0; i < sourceWordArr[wordPos.value].exampleEnglishArr.length; i++) {
 
-            // for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].firstTimeAmount; j++) {
-            arr.push(function () {
-                sentencePlaingIndex.value = i
-                if (!isListPlaying.value) { return Promise.resolve() }
-                return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
-            })
-            // }
+            for (let j = 0; j < sourceWordArr[wordPos.value].exampleEnglishArr[i].firstTimeAmount; j++) {
+                arr.push(function () {
+                    if (!isListPlaying.value) { return Promise.resolve() }
+                    return speak(sourceWordArr[wordPos.value].wordName, sourceWordArr[wordPos.value].exampleEnglishArr[i].sentence)
+                })
+            }
 
             // for (let j = 0; j < sourceWordArr[wordPos.value].exampleChineseArr[i].firstTimeAmount; j++) {
             //     arr.push(function () {
@@ -1078,14 +1032,119 @@ export default function ContextProvider(props) {
 
             function () {
 
-                if (!isListPlaying.value) { return Promise.resolve() }
+                if (!isListPlaying.value) {
+                    return Promise.resolve()
+                }
+
+                //console.log("-->scrollX", (scrollX.value / screenWidth), scrollX.value / screenWidth === wordPos.value)
+
+
+
+                // keepCheckingScrollingUntillStop(() => {
+                //     if (!isListPlaying.value) { return Promise.resolve() }
+
+                //     return new Promise((resolve, reject) => {
+                //         wordPos.value = withTiming((wordPos.value + 1) % sourceWordArr.length, { duration: 0 }, () => {
+                //             runOnJS(resolve)()
+                //         });
+                //     })
+
+                // })
+
+
+
+
                 return new Promise((resolve, reject) => {
+
+                    //    if (scrollX.value / screenWidth === wordPos.value) {
                     wordPos.value = withTiming((wordPos.value + 1) % sourceWordArr.length, { duration: 0 }, () => {
                         runOnJS(resolve)()
                     });
+                    //    }
+                    //    else {
+                    //      const pos = Math.round(scrollX.value / screenWidth) % sourceWordArr.length
+                    //        console.log(pos)
+                    //        wordPos.value = withTiming(pos, { duration: 0 }, () => {
+                    //            runOnJS(resolve)()
+                    //        });
+                    //    }
+
+
                 })
 
             },
+
+
+
+            /*
+                        function () {
+            
+            
+                            keepCheckingScrollingUntillStop(
+                                () => {
+                                    if (!isListPlaying.value) { return Promise.resolve() }
+                                   // isScrollingY.value = true
+                                    scrollRef.current._scrollViewRef.scrollTo({ y: wordPos.value * 80, animated: true })
+                                    setTimeout(() => {
+                                        keepCheckingScrollingUntillStop(function () {
+                                            return Promise.resolve()
+                                        })
+                                    }, 0);
+            
+            
+                                }
+                            )
+            
+                        },
+            
+                        function () {
+            
+            
+                            keepCheckingScrollingUntillStop(
+                                () => {
+                                    if (!isListPlaying.value) { return Promise.resolve() }
+                                   // isScrollingX.value = true
+                                    scrollRef2.current._scrollViewRef.scrollTo({ x: wordPos.value * screenWidth, animated: true })
+                                    setTimeout(() => {
+                                        keepCheckingScrollingUntillStop(function () {
+                                            return Promise.resolve()
+                                        })
+                                    }, 0);
+                                }
+                            )
+            
+                        },
+                        function () {
+                            keepCheckingScrollingUntillStop(
+                                () => {
+                                    if (!isListPlaying.value) { return Promise.resolve() }
+                                    else {
+                                        setTimeout(() => {
+                                            autoPlay()
+                                        }, 0);
+                                        return Promise.resolve()
+                                    }
+            
+                                }
+                            )
+            
+            
+                            // if (!isListPlaying.value) { return Promise.resolve() }
+            
+            
+            
+            
+                        }
+            */
+
+
+
+
+
+
+
+
+
 
             function () {
 
@@ -1106,12 +1165,7 @@ export default function ContextProvider(props) {
                     if (!isListPlaying.value) { resolve() }
                     else if (isAllScrollingStop()) {
 
-
-                        const newY = Math.max(Math.min(scrollY.value + 80, wordPos.value * 80), wordPos.value * 80 - (screenHeight - headHeight) + 80)
-
-
-                        scrollRef.current._scrollViewRef.scrollTo({ y: newY, animated: true })
-                        //scrollRef.current._scrollViewRef.scrollTo({ y: wordPos.value * 80, animated: true })
+                        scrollRef.current._scrollViewRef.scrollTo({ y: wordPos.value * 80, animated: true })
                         //scrollRef2.current._scrollViewRef.scrollTo({ x: wordPos.value * screenWidth, animated: true })
 
                         checkAgain()
@@ -1128,7 +1182,7 @@ export default function ContextProvider(props) {
 
 
                 function checkAgain() {
-
+                    //   console.log("===---+++++++++++", Date.now(), scrollY.value, scrollY.value / 80)
                     if (!isListPlaying.value) { return resolve() }
                     else if (isAllScrollingStop()) {
                         //     console.log(isAllScrollingStop(), isScrollingX.value, isScrollingY.value, isCardMoving.value)
@@ -1154,12 +1208,16 @@ export default function ContextProvider(props) {
 
 
             function () {
-                sentencePlaingIndex.value = 0
+
                 if (!isListPlaying.value) {
+
+
                     console.log("auto play stopped, moving X")
                     if (wordPos.value !== scrollX.value / screenWidth) {
                         scrollRef2.current._scrollViewRef.scrollTo({ x: wordPos.value * screenWidth, animated: true })
                     }
+
+
                     return Promise.resolve()
                 }
 
@@ -1176,6 +1234,7 @@ export default function ContextProvider(props) {
                         if (wordPos.value !== scrollX.value / screenWidth) {
                             scrollRef2.current._scrollViewRef.scrollTo({ x: wordPos.value * screenWidth, animated: true })
                         }
+
                         resolve()
                     }
                     if (isAllScrollingStop()) {
@@ -1184,9 +1243,15 @@ export default function ContextProvider(props) {
                         }, 0);
                         resolve()
                     }
-                    else { setTimeout(() => { check() }, 10); }
+                    else {
+                        setTimeout(() => {
+                            check()
+                        }, 10);
+                    }
+
+
                 }
- 
+
             }
 
 
@@ -1197,7 +1262,7 @@ export default function ContextProvider(props) {
 
     const downloadWord = useDebouncedCallback(
         //function (word1, word2, setProgressWidth, setDownloadStatusTrue, setDownloadStatusFalse) {
-        function (word1, word2, fn) {
+        function (word1, word2) {
             Vibration.vibrate(50)
 
             const hashName1 = CryptoJS(word1).toString();
@@ -1215,7 +1280,6 @@ export default function ContextProvider(props) {
                     console.log('Finished downloading to ', uri);
 
                     setRefreshState(Math.random())
-                    fn && fn()
                     Promise.resolve(word2 + " downloaded")
                 })
                 .catch(error => {
@@ -1229,7 +1293,7 @@ export default function ContextProvider(props) {
 
     )
 
-    function deleteDownloadWord(word1, word2, fn) {
+    function deleteDownloadWord(word1, word2) {
         const hashName1 = CryptoJS(word1).toString();
         const hashName2 = CryptoJS(word2).toString();
         const hashName = hashName1 + hashName2;
@@ -1242,14 +1306,12 @@ export default function ContextProvider(props) {
                 if (!exists) {
                     console.log(word2 + " is not found, cannot delete")
                     //  setRefreshState(Math.random())
-
                     Promise.resolve(word2 + " is not found, cannot delete")
                 }
                 else {
                     return FileSystem.deleteAsync(FileSystem.documentDirectory + hashName + ".mp3", { idempotent: false })
                         .then(() => {
                             console.log(word2 + " deleteted")
-                            fn && fn()
                             setRefreshState(Math.random())
                             Promise.resolve(word2 + " deleteted")
 
@@ -1272,9 +1334,75 @@ export default function ContextProvider(props) {
     const [refreshState, setRefreshState] = useState(Date.now())
     const isManualDrag = useSharedValue(false)
 
+    const shouldHideWordBlock = useSharedValue(() => {
+        //  return runOnJS(calculateShouldHideWordBlock)()
+    })
 
-    
 
+
+    function calculateShouldHideWordBlock() {
+        "worklet"
+        const spaceHeight = screenHeight - headHeight - frameTransY.value
+        const extendedHeight = scrollY.value + spaceHeight
+        const barIndex = extendedHeight / 80
+        const horizontalIndex = scrollX.value / screenWidth
+        // const horizontalIndexR = scrollX.value / screenWidth + 1
+        // const horizontalIndexL = scrollX.value / screenWidth - 1
+
+
+        const diff = barIndex - horizontalIndex
+
+        console.log("----------------", barIndex, barIndex - horizontalIndex, isCardMoving.value)
+
+        if (frameTransY.value >= screenHeight - headHeight) {
+            return false
+        }
+
+
+        else if (!isScrollingY.value && !isScrollingX.value) {
+            if (diff >= 0.9 && diff <= 1.1) {
+                return true
+            }
+            else {
+                return false
+            }
+        }
+
+        // word panel falling has glitch,but moving Y no glitch
+        // else {
+        //     if (diff <= 1.1) {
+        //         return true
+        //     }
+
+        //     else {
+        //         return false
+        //     }
+
+        // }
+
+        // word panel falling no glitch,but moving Y has glitch
+        else {
+            if (diff >= -1.1 && diff <= 2.1) {
+                return true
+            }
+
+            else {
+                return false
+            }
+
+        }
+
+
+
+    }
+
+
+    //  useDerivedValue(() => {
+
+    // const dummy = isScrollingY.value + isCardMoving.value + scrollY.value + scrollX.value + frameTransY.value //must mention all dependency value to get function called
+    // shouldHideWordBlock.value = calculateShouldHideWordBlock()
+
+    // }, [scrollY.value, scrollX.value, frameTransY.value])
 
 
     return (
@@ -1324,14 +1452,13 @@ export default function ContextProvider(props) {
             deleteDownloadWord,
 
             isScrollingY,
-            isScrollingX,
+            isScrollingX, setIsScrollingX,
             isCardMoving,
 
 
             refreshState, setRefreshState,
             isManualDrag,
-            checkPlaying,
-            sentencePlaingIndex
+            shouldHideWordBlock,
 
         }}>
 

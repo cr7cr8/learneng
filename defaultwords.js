@@ -1,4 +1,4 @@
-export default defaultwordsArr = [
+const  defaultwordsArr = [
     {
         "wordName": "abandon",
         "meaning": "v./n.放纵；v.放弃",
@@ -37,19 +37,80 @@ export default defaultwordsArr = [
         "toppingTime": 1710827838664,
         "exampleEnglishArr": [
             {
-                "key": "en-668137",
-                "sentence": "sentence of abase",
+                "key": "en-668101",
+                "sentence": "abase his reputation",
+                "firstTimeAmount": 2,
+                "secondTimeAmount": 2
+            },
+            {
+                "key": "en-668402",
+                "sentence": "The president is not willing to abase himself before the nation.",
+                "firstTimeAmount": 2,
+                "secondTimeAmount": 2
+            },
+            {
+                "key": "en-428103",
+                "sentence": "In former times, priests used to abase themselves before the gods.",
+                "firstTimeAmount": 2,
+                "secondTimeAmount": 2
+            },
+            {
+                "key": "en-543104",
+                "sentence": "You can never abase a person for a little mistake.",
+                "firstTimeAmount": 2,
+                "secondTimeAmount": 2
+            },
+            {
+                "key": "en-668405",
+                "sentence": "But even the Christians who can abase themselves in front of God , also show their stubbornness in mundane matters.",
+                "firstTimeAmount": 2,
+                "secondTimeAmount": 2
+            },
+            {
+                "key": "en-546406",
+                "sentence": "A man who never respect others will abase hisself.",
                 "firstTimeAmount": 2,
                 "secondTimeAmount": 2
             }
         ],
         "exampleChineseArr": [
             {
-                "key": "cn-27293",
+                "key": "cn-272201",
                 "sentence": "第一个abase 的个句子 .",
                 "firstTimeAmount": 1,
                 "secondTimeAmount": 1
+            },
+            {
+                "key": "cn-272902",
+                "sentence": "总统不愿在全国人民面前降低自己的威",
+                "firstTimeAmount": 1,
+                "secondTimeAmount": 1
+            },
+            {
+                "key": "cn-272903",
+                "sentence": "过去，牧师们常常对神自责。",
+                "firstTimeAmount": 1,
+                "secondTimeAmount": 1
+            },
+            {
+                "key": "cn-274204",
+                "sentence": "你永远不可以因为一个小小的错误而去贬低一个人的人格。",
+                "firstTimeAmount": 1,
+                "secondTimeAmount": 1
+            },
+            {
+                "key": "cn-272905",
+                "sentence": "然而即使是能在神面前谦卑下来的基督徒，在世俗的事务上却也异常顽固。",
+                "firstTimeAmount": 1,
+                "secondTimeAmount": 1
+            },
+            {
+                "key": "cn-272906",
+                "sentence": "背叛朋友的人是在贬低自己",
+                "firstTimeAmount": 1,
+                "secondTimeAmount": 1
             }
+
         ],
         "level": 0,
         "accent": "UK",
@@ -85691,6 +85752,18 @@ export default defaultwordsArr = [
                 "sentence": "sentence of withdraw",
                 "firstTimeAmount": 2,
                 "secondTimeAmount": 2
+            },
+            {
+                "key": "en-894866",
+                "sentence": "the game last night played was withdraw, no one was happy.",
+                "firstTimeAmount": 2,
+                "secondTimeAmount": 2
+            },
+            {
+                "key": "en-894866",
+                "sentence": "do not withdraw the money from the public account unless you got an approval",
+                "firstTimeAmount": 2,
+                "secondTimeAmount": 2
             }
         ],
         "exampleChineseArr": [
@@ -85699,7 +85772,19 @@ export default defaultwordsArr = [
                 "sentence": "第一个withdraw 的个句子 .",
                 "firstTimeAmount": 1,
                 "secondTimeAmount": 1
-            }
+            },
+            {
+                "key": "cn-337406",
+                "sentence": "昨晚比赛平局，没人满意",
+                "firstTimeAmount": 1,
+                "secondTimeAmount": 1
+            },
+            {
+                "key": "cn-307406",
+                "sentence": "别弄用公款除非批准",
+                "firstTimeAmount": 1,
+                "secondTimeAmount": 1
+            },
         ],
         "level": 0,
         "accent": "UK",
@@ -86220,3 +86305,5 @@ export default defaultwordsArr = [
         "secondTimeMeaningAmount": 1
     }
 ]
+
+export {defaultwordsArr}

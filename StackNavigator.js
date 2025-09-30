@@ -37,6 +37,9 @@ import WordSettingScreen from './WordSettingScreen';
 import EditorScreen from './EditorScreen';
 import NewWordScreen from './NewWordScreen';
 import SortingScreen from './SortingScreen';
+import SentenceSettingScreen from "./SentenceSettingScreen";
+
+
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import { ListItem, Avatar, LinearProgress, Tooltip, Icon, Input } from 'react-native-elements';
@@ -59,7 +62,7 @@ const screenOptions = function ({ navigation, route }) {
         //  console.log("=====***==============")
         //  console.log(props)
         //},
-
+   
 
         headerStyle: {
             height: getStatusBarHeight() > 24 ? 70 : 60,
@@ -68,7 +71,7 @@ const screenOptions = function ({ navigation, route }) {
             backgroundColor: "wheat"
         },
 
-
+        
 
 
     }
@@ -89,6 +92,7 @@ export default function StackNavigator() {
         <>
             <Stack.Navigator
 
+                //initialRouteName='SentenceSettingScreen'
                 initialRouteName='HomeScreen'
                 screenOptions={screenOptions}
             >
@@ -277,6 +281,34 @@ export default function StackNavigator() {
                     }}
                     //         component={function () { return <></> }}
                     component={SortingScreen}
+                />
+                <Stack.Screen name="SentenceSettingScreen"
+                    options={function ({ navigation, router }) {
+
+                        return {
+                            headerShown: false,
+                            // header: (props) => <Header {...props} />,
+                            // headerTitle: HomeScreenTitle,
+                            headerTransparent: true,
+
+                            // headerRight: () => (
+                            //   <Button
+                            //     title="delete"
+                            //     onPress={function () {
+
+                            //       AsyncStorage.getItem("token").then(token => {
+                            //         console.log(token)
+                            //         token && deleteFolder(token.userName)
+                            //         token && AsyncStorage.removeItem("token")
+                            //       })
+                            //     }}
+                            //   />
+                            // ),
+                        }
+
+                    }}
+                    //         component={function () { return <></> }}
+                    component={SentenceSettingScreen}
                 />
 
             </Stack.Navigator>
