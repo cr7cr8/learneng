@@ -530,7 +530,7 @@ function SentenceArea({ index, sourceWord, children, wordRowHeight, visibleCard,
                     contentContainerStyle={{ width: screenWidth, height: "auto", paddingBottom: 0, backgroundColor: "pink", display: "flex", overflow: "hidden" }}
 onResponderEnd={(e)=>{
     console.log(e)
-}}
+}} 
 
                     // disableScrollViewPanResponder={true}
                     scrollEnabled={true}
