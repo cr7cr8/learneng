@@ -21,7 +21,7 @@ import {
     GestureHandlerRootView,
     TapGestureHandler
 } from 'react-native-gesture-handler'; //npx expo install react-native-gesture-handler
-
+ 
 import ReAnimated, {
     useSharedValue,
     withTiming,

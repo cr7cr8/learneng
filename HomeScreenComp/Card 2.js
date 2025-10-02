@@ -40,8 +40,7 @@ import ReAnimated, {
     interpolate,
     withRepeat,
     runOnUI,
-    withDecay,
-    useAnimatedReaction
+    withDecay
 
 } from 'react-native-reanimated';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
@@ -587,34 +586,6 @@ function SentenceArea({ index, sourceWord, children, wordRowHeight, visibleCard,
         return frameTransY.value - wordRowHeight.value
     }, [wordRowHeight, frameTransY, scrollX, sourceWordArr])
 
-    // useAnimatedReaction(
-    //     () => {
-    //         if (!blockHeightArr.value.includes(false)) {
-    //             if ((isListPlaying.value) && (wordPos.value === index)) {
-    //                 let toHeight = 0
-    //                 blockHeightArr.value.forEach((item, itemIndex) => {
-    //                     if (sentencePlaingIndex.value > itemIndex) {
-    //                         toHeight = toHeight + item
-    //                     }
-    //                 })
-    //                 console.log("to height", toHeight)
-    //                 runOnJS(scroll)(toHeight)
-    //             }
-    //         }
-    //         if (!blockHeightArr.value.includes(false)) {
-    //             const sum = blockHeightArr.value.reduce((total, current) => total + current, 0)
-    //             return sum
-    //         }
-    //         else {
-    //             return totalPanelHeight.value
-    //         }
-
-    //     },
-    //     (sum, previousSum) => {
-
-    //         totalPanelHeight.value = sum
-    //     }
-    // )
 
     useDerivedValue(() => {
 
@@ -624,14 +595,21 @@ function SentenceArea({ index, sourceWord, children, wordRowHeight, visibleCard,
             totalPanelHeight.value = sum
         }
         if ((isListPlaying.value) && (wordPos.value === index)) {
+
             let toHeight = 0
             blockHeightArr.value.forEach((item, itemIndex) => {
                 if (sentencePlaingIndex.value > itemIndex) {
                     toHeight = toHeight + item
                 }
+
+
             })
+
             runOnJS(scroll)(toHeight)
         }
+
+
+
     })
 
 

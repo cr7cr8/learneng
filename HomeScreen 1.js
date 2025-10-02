@@ -75,7 +75,7 @@ import SwipebleRowItem from "./HomeScreenComp/SwipebleRowItem"
 import Card from './HomeScreenComp/Card';
 import ScrollPivot from './HomeScreenComp/ScrollPivot';
 import CryptoJS from 'crypto-js/sha256';
-import { HeaderBar, RateBar } from './HomeScreenComp/HeaderBar';
+
 //import Ionicons from '@expo/vector-icons/Ionicons';
 
 var sign = CryptoJS("hellofff").toString();
@@ -90,7 +90,7 @@ export default function HomeScreen() {
     // return <Text>aa</Text>
 
 
-    const { sourceWordArr, scrollRef0, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
+    const { sourceWordArr, scrollRef, scrollRef2, frameTransY, wordPos, isListPlaying, preLeft, preTop, scrollY, scrollX,
         isPanning, speak, autoPlay, stopSpeak, isScrollingY, isScrollingX, isCardMoving, isManualDrag, shouldHideWordBlock } = useContext(Context)
 
 
@@ -161,6 +161,24 @@ export default function HomeScreen() {
             }
         )
     )
+    // useEffect(() => {
+
+    //     setlayoutProvider2(new LayoutProvider(
+    //         (index) => {
+    //             const rowObj = {
+    //                 index, type: "typeB",
+    //               //  starLevel: sourceWordArr[index]?.level,
+    //               //  cardObj: { heightArr: new Array(sourceWordArr[index]?.exampleEnglishArr.length * 2 || 0).fill(false), }
+    //             };
+
+    //             return rowObj
+    //         },
+    //         (rowObj, dim, index) => {
+    //             if (index === index) { dim.width = screenWidth; dim.height = screenHeight - headHeight; }
+    //             else { dim.width = screenWidth; dim.height = screenHeight - headHeight; }
+    //         }
+    //     ))
+    // }, [sourceWordArr])
 
 
 
@@ -204,8 +222,44 @@ export default function HomeScreen() {
     })
 
 
+    const navigation = useNavigation()
 
 
+
+    // useEffect(() => {
+    //     //navigation.addListener("blur", () => {
+    //             //console.log("going to leave the page")
+    //     //})
+
+
+    //     //  if (navigation.getState().routes[0].name === "RegScreen") {
+    //     const unsubscribe = navigation.addListener("beforeRemove", function (e) {
+    //         // console.log(navigation.getState().routes[0].name === "RegScreen")
+    //         e.preventDefault()
+    //         BackHandler.exitApp()
+    //     })
+
+    //     return unsubscribe
+    //     // }
+    // }, [])
+
+
+    if (sourceWordArr.length === 0) { return <></> }
+
+
+    const playButtonStyle1 = useAnimatedStyle(() => {
+        return {
+            transform: [{ scale: isListPlaying.value ? withTiming(0) : withTiming(1) }]
+        }
+    })
+
+
+    const playButtonStyle2 = useAnimatedStyle(() => {
+        return {
+            transform: [{ scale: isListPlaying.value ? withTiming(1) : withTiming(0) }],
+            position: "absolute"
+        }
+    })
 
 
 
@@ -220,14 +274,98 @@ export default function HomeScreen() {
 
             ]}>
 
+            <View style={{
+                width: screenWidth,
+                height: headHeight,
+
+                backgroundColor: "wheat",
+                flexDirection: "row",
+                justifyContent: "space-around",
+                alignItems: "flex-end",
+            }}
+                onTouchStart={function () {
+                    console.log("header bar pressed")
+                }}>
+
+                {/* <ScrollView contentContainerStyle={{ backgroundColor: "transparent" }}
+                    disableIntervalMomentum={true}
+                    snapToInterval={headHeight}
+                    showsVerticalScrollIndicator={false}
+                    overScrollMode={"never"}
+                >
+
+                    <View style={{ width: screenWidth, height: headHeight, flexDirection: "row", justifyContent: "space-evenly", alignItems: "flex-end", paddingBottom: 4 }}>
 
 
 
-            <HeaderBar />
+                        <TouchableOpacity activeOpacity={0.2} onPressOut={function () {
+
+                            isListPlaying.value = !isListPlaying.value
+                            setTimeout(() => {
+                                if (isListPlaying.value) { autoPlay() }
+                                else { stopSpeak() }
+                            }, 0);
+
+
+                        }}>
+                            <View style={playButtonStyle1}>
+                                <Icon
+                                    name="play-outline" type='ionicon' color='orange'
+                                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: isListPlaying.value ? "90deg" : "0deg" }] }}
+                                    size={40}
+                                />
+                            </View>
+                            <View style={playButtonStyle2}>
+                                <Icon
+                                    name="stop-outline" type='ionicon' color='orange'
+                                    containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: isListPlaying.value ? "90deg" : "0deg" }] }}
+                                    size={40}
+                                />
+                            </View>
+                        </TouchableOpacity>
 
 
 
 
+
+
+
+                        <TouchableOpacity activeOpacity={0.2} onPressOut={function () {
+
+                            //navigation.navigate("SentenceSettingScreen", { wordPos: JSON.parse(JSON.stringify(wordPos.value)) })  //string ingerger to show the mainpage
+
+                        }}>
+                            <Icon
+                                name="settings" type='ionicon' color='orange'
+                                containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "180deg" }] }}
+                                size={40}
+                            />
+                        </TouchableOpacity>
+
+
+                        <TouchableOpacity activeOpacity={0.2} onPressOut={function () {
+
+                            if (preLeft.value == screenWidth) {
+                                preLeft.value = withTiming(preLeft.value + 40)
+                            }
+                            else {
+                                preLeft.value = withTiming(screenWidth)
+                            }
+                        }}>
+                            <Icon
+                                name="code-working-outline" type='ionicon' color='orange'
+                                containerStyle={{ width: 40, height: 40, transform: [{ rotateZ: "90deg" }, { translateX: 0 }, { translateY: 0 }], zIndex: 100, }}
+                                size={40}
+                            />
+                        </TouchableOpacity>
+
+                    </View>
+                    <RateBar />
+
+                </ScrollView> */}
+        
+        
+            </View>
 
             <View style={frameStyle1}>
                 <RecyclerListView
@@ -430,10 +568,8 @@ export default function HomeScreen() {
                 />
             </View>
 
-
-
-
             <ScrollPivot />
+
         </View>
 
 
@@ -445,6 +581,115 @@ export default function HomeScreen() {
 
 }
 
+// function RateBar() {
 
+//     const { setSouceWordArr, saveWordToFile, sourceWordArr, refreshState, setRefreshState, wordPos, scrollX } = useContext(Context)
+
+
+
+
+//     const localLevel = useDerivedValue(() => {
+//         return sourceWordArr[Math.round(scrollX.value / screenWidth)].level
+//     }, [scrollX.value])
+
+//     // const localPos = useSharedValue(6)
+//     // useAnimatedReaction(
+//     //     () => { return wordPos.value },
+//     //     (current, previous) => {
+//     //         console.log(previous,current)
+//     //         localPos.value = sourceWordArr[wordPos.value].level
+//     //     },
+//     //    // [] // calls when wordPos value change
+//     // )
+
+
+
+
+//     function saveLevel(newLevel) {
+//         const sourceWord = sourceWordArr[Math.round(scrollX.value / screenWidth)]
+
+//         setSouceWordArr(sourceWordArr => {
+//             const arr = sourceWordArr.map(word => {
+//                 if (word.wordName !== sourceWord.wordName) {
+//                     return word
+//                 }
+//                 else {
+//                     const newWord = JSON.parse(JSON.stringify(word))
+//                     newWord.level = newLevel
+//                     return newWord
+//                 }
+
+//             })
+
+
+//             return arr
+
+//         })
+
+
+//         setTimeout(() => {
+//             saveWordToFile()
+//         }, 100);
+
+//     }
+
+
+
+//     return (
+//         <View style={useAnimatedStyle(() => {
+
+//             return {
+//                 backgroundColor: "transparent",// isDownloaded.value ? "wheat" : "#e7cca0",
+//                 width: screenWidth, height: headHeight, flexDirection: "row",
+//                 justifyContent: "space-evenly",
+//                 alignItems: "flex-end",
+//                 padding: 0, margin: 0, paddingHorizontal: 0, marginHorizontal: 0,
+//                 paddingBottom: 4
+//             }
+//         })}>
+
+//             {[0, 1, 2, 3, 4, 5].map((levelIndex, index) => {
+
+
+//                 return <GestureDetector key={index} gesture={Gesture.Tap().onStart(e => {
+//                     if (localLevel.value === levelIndex) { return }
+//                     else {
+//                         localLevel.value = levelIndex
+//                         runOnJS(saveLevel)(levelIndex)
+//                     }
+//                 })} >
+//                     <View style={
+
+//                         [useAnimatedStyle(() => {
+//                             return {
+//                                 width: 40, height: 40, borderRadius: 999, borderColor: "orange", flexDirection: "row",
+//                                 borderWidth: 1, justifyContent: "center", alignItems: "center",
+//                                 backgroundColor: localLevel.value === levelIndex
+//                                     ? "orange"
+//                                     : "transparent",
+
+//                                 padding: 0, margin: 0, paddingHorizontal: 0, marginHorizontal: 0
+//                             }
+//                         })]
+//                     }>
+
+//                         <Text style={[
+//                             useAnimatedStyle(() => {
+//                                 return { color: localLevel.value === levelIndex ? "wheat" : "orange", fontSize: 15, fontWeight: "900" }
+//                             }),
+//                         ]}>{levelIndex}</Text>
+
+//                     </View>
+
+//                 </GestureDetector>
+//             })
+
+//             }
+
+
+
+//         </View >
+//     )
+// }
 
 

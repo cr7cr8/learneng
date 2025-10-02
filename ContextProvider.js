@@ -514,9 +514,9 @@ export default function ContextProvider(props) {
             runOnJS(enableSleep)()
         }
     }, [isListPlaying.value])
+ 
 
-
-
+    const scrollRef0 = useAnimatedRef()
     const scrollRef = useAnimatedRef()
     const scrollRef2 = useAnimatedRef()
 
@@ -1186,7 +1186,7 @@ export default function ContextProvider(props) {
                     }
                     else { setTimeout(() => { check() }, 10); }
                 }
- 
+
             }
 
 
@@ -1273,7 +1273,7 @@ export default function ContextProvider(props) {
     const isManualDrag = useSharedValue(false)
 
 
-    
+
 
 
 
@@ -1296,6 +1296,7 @@ export default function ContextProvider(props) {
             stopPlay,
             isListPlaying,
 
+            scrollRef0,
             scrollRef,
             scrollRef2,
             setWordPos,
@@ -1331,7 +1332,8 @@ export default function ContextProvider(props) {
             refreshState, setRefreshState,
             isManualDrag,
             checkPlaying,
-            sentencePlaingIndex
+            sentencePlaingIndex,
+            scrollRef0
 
         }}>
 

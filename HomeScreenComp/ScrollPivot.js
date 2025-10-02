@@ -200,19 +200,28 @@ export default function ScrollPivot() {
         return {
             width: 80,
             height: 80,
-            backgroundColor: "wheat",//"rgba(231, 231, 224, 0.67)f",//"transparent",
-            borderTopLeftRadius: 1000,
-            borderBottomLeftRadius: 1000,
 
+            borderColor: "orange",
+            borderWidth: 4,
+
+            backgroundColor: "wheat",//"rgba(231, 231, 224, 0.67)f",//"transparent",
+            borderTopLeftRadius: 999,
+            borderBottomLeftRadius: 999,
 
             position: "absolute",
 
-            left:
-                isPanning.value
-                    ? preLeft.value - 40
-                    : isListPlaying.value
-                        ? preLeft.value - 40
-                        : isScrollingY.value ? withTiming(preLeft.value - 40) : withTiming(preLeft.value),
+            left: preLeft.value - 40,
+
+            // left:
+            //     isPanning.value
+            //         ? preLeft.value - 40
+            //         : isListPlaying.value
+            //             ? preLeft.value - 40
+            //             : isScrollingY.value ? withTiming(preLeft.value - 40) : withTiming(preLeft.value),
+
+
+
+
 
 
             //  top: withTiming(interpolate(preTop.value, [0, 1], [80, screenHeight - headHeight], "clamp")),//preTop.value,
@@ -221,7 +230,7 @@ export default function ScrollPivot() {
             //       borderRadius: 1000,
             //         borderTopRightRadius: preLeft.value === screenWidth - 80 ? 0 : 1000,
             //        borderBottomRightRadius: preLeft.value === screenWidth - 80 ? 0 : 1000,
-            borderWidth: 0,
+        
             //  borderRightWidth: 10,
             //  borderRightWidth: 0,
             //borderRightColor: isListPlaying.value ? "lightgreen" : "#faa",
@@ -235,6 +244,7 @@ export default function ScrollPivot() {
             elevation: 8,
             shadowColor: "black",
 
+            
             // opacity: interpolate(frameTransY.value, [screenHeight - headHeight, screenHeight - headHeight - 80], [0, 0.8], "clamp"),
             opacity: isPanning.value ? 1 : isListPlaying.value ? 0.5 : isScrollingY.value ? withTiming(0.8) : withTiming(0.5),
         }
